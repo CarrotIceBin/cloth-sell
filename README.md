@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、MySQL
+- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、MySQL。数据源换成 PostgreSQL 时，分页会跟着切换。`app.cache.redis=true` 时用 Redis 缓存商品，默认关闭。
 - 前端：Vue 3、Vite、Vue Router、Element Plus、Axios
 
 ## 功能
@@ -29,9 +29,11 @@
 ## 目录
 
 ```
-backend/     Spring Boot，接口前缀 /mall
+backend/     Spring Boot，控制器仍是 /mall
 frontend/    Vue 商城与管理后台
 ```
+
+浏览器里的页面是 `/`、`/admin`，请求仍发到 `/mall`、`/files`。开发服务器转发给后端之前，管理接口加上 `/admin-api`，顾客接口加上 `/client-api`。后端去掉前缀后再进入原来的接口。两条前缀不能互串。变更记录在 `CHANGELOG.md`。
 
 接口文档由 springdoc 提供，后端起来后打开 `/swagger-ui.html`。
 
@@ -53,20 +55,9 @@ frontend/    Vue 商城与管理后台
 | `mall_login_log` | 登录日志 |
 | `mall_refresh_token` | 刷新令牌 |
 
-完整库结构在本地文件 `backend/sql/cloth_sell.sql`，该文件被 `.gitignore` 排除，仓库里没有这份导出。已有这份文件时先导入它。增量脚本在仓库里：
+完整库结构在本地文件 `backend/sql/cloth_sell.sql`。该文件被 `.gitignore` 排除，仓库里没有这份导出，也没有增量脚本和演示数据。已有这份文件时先导入它。
 
-```sql
-source backend/sql/mall_login_log.sql
-source backend/sql/mall_refresh_token.sql
-```
-
-演示数据（50 件已上架服装，每件「黑 / 米 × S / M」四个规格，封面为空，需要在后台上传）：
-
-```sql
-source backend/sql/seed-50.sql
-```
-
-管理端登录页默认账号名为 `admin`，密码必须与 `mall_admin` 里的 BCrypt 记录一致。仓库不提供默认口令。
+管理端登录页的账号名是 `admin`。库里还没有这个账号时，设置至少 8 位的 `app.admin-password`（或环境变量 `APP_ADMIN_PASSWORD`），后端启动时才会创建。已有账号不会被覆盖。仓库不提供默认口令。
 
 ### 2. 后端配置
 
@@ -80,9 +71,12 @@ copy src\main\resources\application.yml.example src\main\resources\application.y
 | 变量 | 作用 |
 | --- | --- |
 | `MYSQL_PASSWORD` | MySQL 密码，对应示例里的 `password` |
+| `APP_TOKEN_SECRET` | 访问令牌密钥，至少 32 位。示例里的 `change-me` 不能用来启动 |
+| `APP_ADMIN_PASSWORD` | 首次创建管理员的口令，至少 8 位。已有 `admin` 时不会改密码 |
+| `REDIS_ENABLED` | 设为 `true` 才连接 Redis。还可配 `REDIS_HOST`、`REDIS_PORT` |
 | `QINIU_ACCESS_KEY` / `QINIU_SECRET_KEY` / `QINIU_BUCKET` / `QINIU_DOMAIN` | 七牛上传；Access Key 为空时走本地目录 |
 
-把 `app.token-secret` 改成自己的密钥。服务端口 `8080`。
+服务端口 `8080`。
 
 ```bash
 mvn spring-boot:run
@@ -96,7 +90,7 @@ npm install
 npm run dev
 ```
 
-开发服务器在 `http://localhost:5173`，并把 `/mall`、`/files` 代理到 `http://127.0.0.1:8080`。
+开发服务器在 `http://localhost:5173`。页面请求 `/mall` 和 `/files`；转发到 `http://127.0.0.1:8080` 时，`/mall` 会被改写成 `/admin-api` 或 `/client-api`。
 
 | 路径 | 页面 |
 | --- | --- |

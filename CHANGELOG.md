@@ -27,3 +27,4 @@
 
 - 商品列表可以按 `app.cache.redis=true` 用 Redis 缓存，默认关闭。
 - 分页插件按数据源选择 MySQL 或 PostgreSQL。
+- README 写明了接口前缀、首次创建管理员，以及令牌密钥和 Redis 的环境变量。库结构改由本地的 `backend/sql/cloth_sell.sql` 导入，仓库里不再列出已删除的 SQL 脚本。
