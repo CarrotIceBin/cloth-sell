@@ -19,9 +19,14 @@
           <el-input v-model="sku.size" placeholder="尺码" />
           <el-input v-model="sku.price" placeholder="价格" />
           <el-input v-model="sku.stock" placeholder="库存" />
+          <el-upload :show-file-list="false" :http-request="(option: any) => uploadSkuCover(option, sku)">
+            <el-button size="small">图片</el-button>
+          </el-upload>
+          <el-image v-if="sku.coverUrl" class="sku-thumb" :src="sku.coverUrl" fit="cover" />
           <el-button text @click="formData.skus.splice(index, 1)">删除</el-button>
         </div>
         <el-button @click="formData.skus.push({ color: '', size: '', price: undefined, stock: undefined })">加规格</el-button>
+        <p class="sku-tip">同一个颜色共用一张图，上传后会自动填到该颜色的其他尺码。</p>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -78,6 +83,23 @@ const uploadCover = async (option: any) => {
   }
 }
 
+// 颜色决定主图，所以同颜色的其他尺码一起填上
+const uploadSkuCover = async (option: any, sku: Sku) => {
+  try {
+    const url = await ProductApi.uploadCover(option.file)
+    const color = (sku.color || '').trim()
+    if (!color) {
+      sku.coverUrl = url
+      return
+    }
+    formData.value.skus?.forEach((item) => {
+      if ((item.color || '').trim() === color) item.coverUrl = url
+    })
+  } catch (e: any) {
+    message.error(e.message || '上传失败')
+  }
+}
+
 const submitForm = async () => {
   await formRef.value.validate()
   formLoading.value = true
@@ -104,5 +126,7 @@ const resetForm = () => {
 }
 </script>
 <style scoped>
-.sku-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.sku-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.sku-thumb { width: 40px; height: 40px; flex-shrink: 0; }
+.sku-tip { color: #78716c; font-size: 12px; margin: 8px 0 0; }
 </style>

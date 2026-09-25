@@ -2,8 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior: () => ({ top: 0 }),
   routes: [
-    { path: '/', component: () => import('@/views/mall/client/product/index.vue') },
+    { path: '/', component: () => import('@/views/mall/client/home/index.vue') },
+    { path: '/shop', component: () => import('@/views/mall/client/shop/index.vue') },
+    { path: '/journal', component: () => import('@/views/mall/client/journal/index.vue') },
+    { path: '/journal/:id', component: () => import('@/views/mall/client/journal/detail.vue') },
     { path: '/product/:id', component: () => import('@/views/mall/client/product/detail.vue') },
     { path: '/cart', component: () => import('@/views/mall/client/cart/index.vue'), meta: { user: true } },
     { path: '/checkout', component: () => import('@/views/mall/client/order/checkout.vue'), meta: { user: true } },
@@ -16,7 +20,9 @@ const router = createRouter({
       meta: { admin: true },
       children: [
         { path: 'product', component: () => import('@/views/mall/product/index.vue') },
-        { path: 'order', component: () => import('@/views/mall/order/index.vue') }
+        { path: 'order', component: () => import('@/views/mall/order/index.vue') },
+        { path: 'journal', component: () => import('@/views/mall/journal/index.vue') },
+        { path: 'review', component: () => import('@/views/mall/review/index.vue') }
       ]
     }
   ]

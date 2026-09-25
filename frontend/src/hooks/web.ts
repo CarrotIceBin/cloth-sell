@@ -28,7 +28,9 @@ export function useI18n() {
 
 const ADMIN_PERMS = [
   'mall:product:query', 'mall:product:create', 'mall:product:update', 'mall:product:delete',
-  'mall:order:query', 'mall:order:update'
+  'mall:order:query', 'mall:order:update',
+  'mall:journal:query', 'mall:journal:create', 'mall:journal:update', 'mall:journal:delete',
+  'mall:review:query', 'mall:review:update', 'mall:review:delete'
 ]
 
 function readList(key: string) {

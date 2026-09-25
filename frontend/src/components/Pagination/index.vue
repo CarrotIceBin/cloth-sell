@@ -6,7 +6,7 @@
     :total="total"
     :current-page="page"
     :page-size="limit"
-    :page-sizes="[10, 15, 20]"
+    :page-sizes="[12, 20, 40]"
     @current-change="onPage"
     @size-change="onSize"
   />

@@ -1,15 +1,19 @@
 <template>
   <div class="shell" :class="{ narrow }">
     <aside v-if="!narrow">
-      <div class="brand">CLOTH</div>
+      <div class="brand">棉里</div>
       <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">商品</router-link>
       <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">订单</router-link>
+      <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">期刊</router-link>
+      <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">评价</router-link>
       <button class="exit" @click="logout">退出</button>
     </aside>
     <div class="main">
       <header v-if="narrow" class="top">
         <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">商品</router-link>
         <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">订单</router-link>
+        <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">期刊</router-link>
+        <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">评价</router-link>
         <button @click="logout">退出</button>
       </header>
       <router-view />

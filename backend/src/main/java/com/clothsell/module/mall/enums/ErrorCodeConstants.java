@@ -19,4 +19,7 @@ public interface ErrorCodeConstants {
     ErrorCode FILE_TYPE = new ErrorCode(1_002_001_032, "只支持 jpg、png、gif、webp 图片");
     ErrorCode COVER_BAD = new ErrorCode(1_002_001_033, "封面地址无效");
     ErrorCode MONEY_UNAVAILABLE = new ErrorCode(1_002_001_040, "金额计算服务不可用");
+    ErrorCode JOURNAL_NOT_EXISTS = new ErrorCode(1_002_001_050, "文章不存在");
+    ErrorCode REVIEW_NOT_EXISTS = new ErrorCode(1_002_001_060, "评价不存在");
+    ErrorCode REVIEW_EXISTS = new ErrorCode(1_002_001_061, "你已经评价过这件商品了");
 }

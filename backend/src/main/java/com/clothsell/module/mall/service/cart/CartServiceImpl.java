@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
             dto.setSkuId(sku.getId());
             dto.setProductId(product.getId());
             dto.setName(product.getName());
-            dto.setCoverUrl(ProductServiceImpl.safeCover(product.getCoverUrl()));
+            dto.setCoverUrl(colorCover(sku, product));
             dto.setColor(sku.getColor());
             dto.setSize(sku.getSize());
             dto.setPrice(sku.getPrice());
@@ -129,8 +129,12 @@ public class CartServiceImpl implements CartService {
         return result;
     }
 
-    private SkuDO requireShelfSku(Long skuId) {
-        SkuDO sku = skuMapper.selectById(skuId);
+    private String colorCover(SkuDO sku, ProductDO product) {
+        String cover = ProductServiceImpl.safeCover(sku.getCoverUrl());
+        return cover != null ? cover : ProductServiceImpl.safeCover(product.getCoverUrl());
+    }
+
+    private SkuDO requireShelfSku(Long skuId) {        SkuDO sku = skuMapper.selectById(skuId);
         if (sku == null) {
             throw exception(SKU_NOT_EXISTS);
         }

@@ -34,9 +34,11 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             var authorities = "ADMIN".equals(user.role()) ? adminPerms() : clientPerms();
             var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
-        } else if ("GET".equals(request.getMethod()) && request.getRequestURI().startsWith("/mall/client/product")) {
+        } else if ("GET".equals(request.getMethod()) && guestReadable(request.getRequestURI())) {
             var auth = new AnonymousAuthenticationToken("guest", "guest",
-                    List.of(new SimpleGrantedAuthority("mall:client-product:query")));
+                    List.of(new SimpleGrantedAuthority("mall:client-product:query"),
+                            new SimpleGrantedAuthority("mall:client-journal:query"),
+                            new SimpleGrantedAuthority("mall:client-review:query")));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         try {
@@ -46,6 +48,12 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         }
     }
 
+    private boolean guestReadable(String uri) {
+        return uri.startsWith("/mall/client/product")
+                || uri.startsWith("/mall/client/journal")
+                || uri.startsWith("/mall/client/review");
+    }
+
     private List<SimpleGrantedAuthority> adminPerms() {
         return List.of(
                 new SimpleGrantedAuthority("mall:product:query"),
@@ -53,7 +61,14 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                 new SimpleGrantedAuthority("mall:product:update"),
                 new SimpleGrantedAuthority("mall:product:delete"),
                 new SimpleGrantedAuthority("mall:order:query"),
-                new SimpleGrantedAuthority("mall:order:update")
+                new SimpleGrantedAuthority("mall:order:update"),
+                new SimpleGrantedAuthority("mall:journal:query"),
+                new SimpleGrantedAuthority("mall:journal:create"),
+                new SimpleGrantedAuthority("mall:journal:update"),
+                new SimpleGrantedAuthority("mall:journal:delete"),
+                new SimpleGrantedAuthority("mall:review:query"),
+                new SimpleGrantedAuthority("mall:review:update"),
+                new SimpleGrantedAuthority("mall:review:delete")
         );
     }
 
@@ -66,7 +81,10 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                 new SimpleGrantedAuthority("mall:client-cart:delete"),
                 new SimpleGrantedAuthority("mall:client-order:query"),
                 new SimpleGrantedAuthority("mall:client-order:create"),
-                new SimpleGrantedAuthority("mall:client-order:update")
+                new SimpleGrantedAuthority("mall:client-order:update"),
+                new SimpleGrantedAuthority("mall:client-journal:query"),
+                new SimpleGrantedAuthority("mall:client-review:query"),
+                new SimpleGrantedAuthority("mall:client-review:create")
         );
     }
 }

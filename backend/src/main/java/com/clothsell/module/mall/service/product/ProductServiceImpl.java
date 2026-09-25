@@ -151,12 +151,14 @@ public class ProductServiceImpl implements ProductService {
                 sku.setSize(row.getSize().trim());
                 sku.setPrice(row.getPrice());
                 sku.setStock(row.getStock());
+                sku.setCoverUrl(cover(row.getCoverUrl()));
                 skuMapper.insert(sku);
             } else {
                 SkuDO update = new SkuDO();
                 update.setId(sku.getId());
                 update.setPrice(row.getPrice());
                 update.setStock(row.getStock());
+                update.setCoverUrl(cover(row.getCoverUrl()));
                 skuMapper.updateById(update);
             }
         }

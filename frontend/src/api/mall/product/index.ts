@@ -6,6 +6,7 @@ export interface Sku {
   size?: string
   price?: number
   stock?: number
+  coverUrl?: string
 }
 
 export interface Product {

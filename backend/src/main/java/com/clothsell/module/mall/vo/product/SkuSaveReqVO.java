@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,4 +21,6 @@ public class SkuSaveReqVO {
     @NotNull(message = "库存不能为空")
     @Min(value = 0, message = "库存不能为负")
     private Integer stock;
+    @Size(max = 255, message = "图片地址过长")
+    private String coverUrl;
 }
