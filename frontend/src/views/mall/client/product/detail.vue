@@ -4,7 +4,7 @@
     <main class="page" v-if="product">
       <router-link class="back" to="/">返回</router-link>
       <div class="detail">
-        <div class="cover" :style="product.coverUrl ? { backgroundImage: `url(${product.coverUrl})` } : {}"></div>
+        <div class="cover" :style="coverStyle(product.coverUrl)"></div>
         <div class="buy">
           <p class="cat">{{ product.category }}</p>
           <h1>{{ product.name }}</h1>
@@ -29,6 +29,7 @@ import ShopBar from '@/components/ShopBar.vue'
 import { ClientProductApi } from '@/api/mall/client/product'
 import { CartApi } from '@/api/mall/client/cart'
 import type { Product, Sku } from '@/api/mall/product'
+import { coverStyle } from '@/utils/cover'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 

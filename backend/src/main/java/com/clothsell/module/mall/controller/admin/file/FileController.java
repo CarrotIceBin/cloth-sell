@@ -18,12 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.UUID;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.framework.common.pojo.CommonResult.success;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.FILE_EMPTY;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.FILE_TYPE;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.FILE_UPLOAD;
 
 @RestController
@@ -46,22 +46,26 @@ public class FileController {
         if (file == null || file.isEmpty()) {
             throw exception(FILE_EMPTY);
         }
-        String ext = extension(file.getOriginalFilename());
+        byte[] bytes = file.getBytes();
+        String ext = sniff(bytes);
+        if (ext == null) {
+            throw exception(FILE_TYPE);
+        }
         String filename = UUID.randomUUID().toString().replace("-", "") + ext;
         if (accessKey == null || accessKey.isBlank()) {
-            return success(saveLocal(file, filename));
+            return success(saveLocal(bytes, filename));
         }
-        return success(saveQiniu(file, filename));
+        return success(saveQiniu(bytes, filename));
     }
 
-    private String saveLocal(MultipartFile file, String filename) throws IOException {
+    private String saveLocal(byte[] bytes, String filename) throws IOException {
         Path dir = Path.of(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(dir);
-        file.transferTo(dir.resolve(filename));
+        Files.write(dir.resolve(filename), bytes);
         return "/files/" + filename;
     }
 
-    private String saveQiniu(MultipartFile file, String filename) throws IOException {
+    private String saveQiniu(byte[] bytes, String filename) throws IOException {
         if (secretKey.isBlank() || bucket.isBlank() || domain.isBlank()) {
             throw exception(FILE_UPLOAD);
         }
@@ -69,7 +73,7 @@ public class FileController {
         Auth auth = Auth.create(accessKey, secretKey);
         UploadManager uploadManager = new UploadManager(new Configuration(Region.xinjiapo()));
         try {
-            Response response = uploadManager.put(file.getBytes(), key, auth.uploadToken(bucket));
+            Response response = uploadManager.put(bytes, key, auth.uploadToken(bucket));
             if (!response.isOK()) {
                 throw new ServiceException(FILE_UPLOAD.getCode(), "图片上传失败：" + response.error);
             }
@@ -85,17 +89,20 @@ public class FileController {
         return base + "/" + key;
     }
 
-    private String extension(String originalName) {
-        String name = originalName == null ? "" : originalName.toLowerCase(Locale.ROOT);
-        if (name.endsWith(".png")) {
+    private String sniff(byte[] data) {
+        if (data.length >= 3 && (data[0] & 0xff) == 0xff && (data[1] & 0xff) == 0xd8 && (data[2] & 0xff) == 0xff) {
+            return ".jpg";
+        }
+        if (data.length >= 8 && data[0] == (byte) 0x89 && data[1] == 'P' && data[2] == 'N' && data[3] == 'G') {
             return ".png";
         }
-        if (name.endsWith(".gif")) {
+        if (data.length >= 6 && data[0] == 'G' && data[1] == 'I' && data[2] == 'F' && data[3] == '8') {
             return ".gif";
         }
-        if (name.endsWith(".webp")) {
+        if (data.length >= 12 && data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F'
+                && data[8] == 'W' && data[9] == 'E' && data[10] == 'B' && data[11] == 'P') {
             return ".webp";
         }
-        return ".jpg";
+        return null;
     }
 }

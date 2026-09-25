@@ -22,6 +22,7 @@ import ShopBar from '@/components/ShopBar.vue'
 import Pagination from '@/components/Pagination/index.vue'
 import { ClientProductApi } from '@/api/mall/client/product'
 import type { Product } from '@/api/mall/product'
+import { coverStyle } from '@/utils/cover'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -29,7 +30,7 @@ const list = ref<Product[]>([])
 const total = ref(0)
 const queryParams = reactive({ pageNo: 1, pageSize: 10, sortBy: undefined as string | undefined, sortOrder: undefined as string | undefined })
 const money = (n?: number) => Number(n || 0).toFixed(2)
-const cover = (item: Product) => item.coverUrl ? { backgroundImage: `url(${item.coverUrl})` } : {}
+const cover = (item: Product) => coverStyle(item.coverUrl)
 const getList = async () => {
   const data = await ClientProductApi.getProductPage(queryParams)
   list.value = data.list

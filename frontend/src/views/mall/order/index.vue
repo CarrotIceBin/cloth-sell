@@ -2,7 +2,7 @@
   <ContentWrap>
     <el-form :model="queryParams" ref="queryFormRef" :inline="true">
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" clearable class="!w-160px">
+        <el-select v-model="queryParams.status" clearable placeholder="请选择状态" class="status-select">
           <el-option label="待付款" value="PENDING" />
           <el-option label="已付款" value="PAID" />
           <el-option label="已发货" value="SHIPPED" />
@@ -97,4 +97,5 @@ onMounted(getList)
 </script>
 <style scoped>
 .order-actions { display: flex; gap: 6px; }
+.status-select { width: 160px; }
 </style>

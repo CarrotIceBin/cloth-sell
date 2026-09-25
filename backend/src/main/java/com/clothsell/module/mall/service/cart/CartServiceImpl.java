@@ -7,6 +7,7 @@ import com.clothsell.module.mall.dal.dataobject.product.SkuDO;
 import com.clothsell.module.mall.dal.mysql.cart.CartMapper;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
+import com.clothsell.module.mall.service.product.ProductServiceImpl;
 import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -93,7 +94,7 @@ public class CartServiceImpl implements CartService {
             dto.setSkuId(sku.getId());
             dto.setProductId(product.getId());
             dto.setName(product.getName());
-            dto.setCoverUrl(product.getCoverUrl());
+            dto.setCoverUrl(ProductServiceImpl.safeCover(product.getCoverUrl()));
             dto.setColor(sku.getColor());
             dto.setSize(sku.getSize());
             dto.setPrice(sku.getPrice());

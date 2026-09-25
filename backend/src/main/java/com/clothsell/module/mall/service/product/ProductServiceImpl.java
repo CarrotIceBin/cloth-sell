@@ -13,13 +13,16 @@ import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
 import com.clothsell.framework.mybatis.core.query.LambdaQueryWrapperX;
 import com.clothsell.module.mall.vo.product.ProductPageReqVO;
 import com.clothsell.module.mall.vo.product.ProductSaveReqVO;
+import com.clothsell.framework.redis.core.MallCache;
 import com.clothsell.module.mall.vo.product.SkuSaveReqVO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.COVER_BAD;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_IN_ORDER;
 
@@ -44,16 +48,19 @@ public class ProductServiceImpl implements ProductService {
     private CartMapper cartMapper;
     @Resource
     private OrderLineMapper orderLineMapper;
+    @Resource
+    private MallCache mallCache;
 
     @Override
     @Transactional
     public Long createProduct(ProductSaveReqVO createReqVO) {
         ProductDO row = new ProductDO();
         row.setName(createReqVO.getName().trim());
-        row.setCoverUrl(blank(createReqVO.getCoverUrl()));
+        row.setCoverUrl(cover(createReqVO.getCoverUrl()));
         row.setOnShelf(createReqVO.getOnShelf());
         productMapper.insert(row);
         saveSkus(row.getId(), List.of(), createReqVO.getSkus());
+        mallCache.evictProducts();
         return row.getId();
     }
 
@@ -64,11 +71,12 @@ public class ProductServiceImpl implements ProductService {
         ProductDO update = new ProductDO();
         update.setId(updateReqVO.getId());
         update.setName(updateReqVO.getName().trim());
-        update.setCoverUrl(blank(updateReqVO.getCoverUrl()));
+        update.setCoverUrl(cover(updateReqVO.getCoverUrl()));
         update.setOnShelf(updateReqVO.getOnShelf());
         productMapper.updateById(update);
         List<SkuDO> existing = skuMapper.selectByProductIds(List.of(updateReqVO.getId()));
         saveSkus(updateReqVO.getId(), existing, updateReqVO.getSkus());
+        mallCache.evictProducts();
     }
 
     @Override
@@ -85,22 +93,40 @@ public class ProductServiceImpl implements ProductService {
             skuMapper.deleteById(sku.getId());
         }
         productMapper.deleteById(id);
+        mallCache.evictProducts();
     }
 
     @Override
     public ProductRespDTO getProduct(Long id) {
+        String key = "mall:product:" + id;
+        ProductRespDTO cached = mallCache.get(key, ProductRespDTO.class);
+        if (cached != null) {
+            return cached;
+        }
         ProductDO row = productMapper.selectById(id);
         if (row == null) {
             throw exception(PRODUCT_NOT_EXISTS);
         }
-        return assemble(List.of(row)).get(0);
+        ProductRespDTO dto = assemble(List.of(row)).get(0);
+        mallCache.set(key, dto, Duration.ofMinutes(10));
+        return dto;
     }
 
     @Override
     public PageResult<ProductRespDTO> getProductPage(ProductPageReqVO pageReqVO) {
         pageReqVO.toOrderBySql(PageParam.allow("name", "name", "createTime", "create_time", "id", "id"));
+        String key = "mall:product:page:" + pageReqVO.getPageNo() + ":" + pageReqVO.getPageSize()
+                + ":" + pageReqVO.getName() + ":" + pageReqVO.getOnShelf()
+                + ":" + pageReqVO.getSortBy() + ":" + pageReqVO.getSortOrder();
+        PageResult<ProductRespDTO> cached = mallCache.get(key, new TypeReference<PageResult<ProductRespDTO>>() {
+        });
+        if (cached != null) {
+            return cached;
+        }
         PageResult<ProductDO> page = productMapper.selectPage(pageReqVO);
-        return new PageResult<>(assemble(page.getList()), page.getTotal());
+        PageResult<ProductRespDTO> result = new PageResult<>(assemble(page.getList()), page.getTotal());
+        mallCache.set(key, result, Duration.ofMinutes(2));
+        return result;
     }
 
     private void saveSkus(Long productId, List<SkuDO> existing, List<SkuSaveReqVO> rows) {
@@ -156,6 +182,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductRespDTO> list = new ArrayList<>();
         for (ProductDO row : rows) {
             ProductRespDTO dto = BeanUtils.toBean(row, ProductRespDTO.class);
+            dto.setCoverUrl(safeCover(row.getCoverUrl()));
             dto.setCategory(CATEGORY);
             List<SkuDO> items = skus.getOrDefault(row.getId(), List.of());
             dto.setSkus(items);
@@ -180,7 +207,31 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    private String cover(String value) {
+        String url = blank(value);
+        if (url == null) {
+            return null;
+        }
+        if (safeCover(url) == null) {
+            throw exception(COVER_BAD);
+        }
+        return url;
+    }
+
     private String blank(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    public static String safeCover(String url) {
+        if (url == null || url.length() > 500 || url.chars().anyMatch(ch -> ch <= ' ' || "\"'()<>\\".indexOf(ch) >= 0)) {
+            return null;
+        }
+        if (url.startsWith("/files/") && url.matches("/files/[A-Za-z0-9._-]+")) {
+            return url;
+        }
+        if (url.startsWith("https://")) {
+            return url;
+        }
+        return null;
     }
 }

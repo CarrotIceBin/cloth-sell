@@ -13,6 +13,9 @@ public interface ErrorCodeConstants {
     ErrorCode USER_EXISTS = new ErrorCode(1_002_001_020, "手机号已注册");
     ErrorCode LOGIN_BAD = new ErrorCode(1_002_001_021, "账号或密码错误");
     ErrorCode TOKEN_EXPIRED = new ErrorCode(1_002_001_022, "登录已过期");
+    ErrorCode LOGIN_LOCKED = new ErrorCode(1_002_001_023, "尝试次数过多，请10分钟后再试");
     ErrorCode FILE_EMPTY = new ErrorCode(1_002_001_030, "请选择图片");
     ErrorCode FILE_UPLOAD = new ErrorCode(1_002_001_031, "图片上传失败");
+    ErrorCode FILE_TYPE = new ErrorCode(1_002_001_032, "只支持 jpg、png、gif、webp 图片");
+    ErrorCode COVER_BAD = new ErrorCode(1_002_001_033, "封面地址无效");
 }

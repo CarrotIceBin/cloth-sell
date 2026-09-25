@@ -18,6 +18,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -47,8 +48,11 @@ public class AuthService {
     private LoginLogMapper loginLogMapper;
     @Resource
     private RefreshTokenMapper refreshTokenMapper;
+    @Resource
+    private LoginGuard loginGuard;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final SecureRandom random = new SecureRandom();
+    private static final String DUMMY_HASH = new BCryptPasswordEncoder().encode("cloth-sell-login-dummy");
 
     public LoginRespVO register(ClientLoginReqVO reqVO) {
         if (reqVO.getPassword().length() < 6) {
@@ -65,31 +69,40 @@ public class AuthService {
     }
 
     public LoginRespVO login(ClientLoginReqVO reqVO) {
+        loginGuard.check(reqVO.getPhone());
         MallUserDO user = mallUserMapper.selectByPhone(reqVO.getPhone());
-        if (user == null || !encoder.matches(reqVO.getPassword(), user.getPassword())) {
+        if (!passwordMatches(user == null ? null : user.getPassword(), reqVO.getPassword())) {
+            loginGuard.fail(reqVO.getPhone());
             writeLog("USER", user == null ? null : user.getId(), reqVO.getPhone(), false);
             throw exception(LOGIN_BAD);
         }
+        loginGuard.ok(reqVO.getPhone());
         writeLog("USER", user.getId(), user.getPhone(), true);
         return session("USER", user.getId(), user.getPhone());
     }
 
     public LoginRespVO adminLogin(AdminLoginReqVO reqVO) {
+        loginGuard.check(reqVO.getUsername());
         MallAdminDO admin = mallAdminMapper.selectByUsername(reqVO.getUsername());
-        if (admin == null || !encoder.matches(reqVO.getPassword(), admin.getPassword())) {
+        if (!passwordMatches(admin == null ? null : admin.getPassword(), reqVO.getPassword())) {
+            loginGuard.fail(reqVO.getUsername());
             writeLog("ADMIN", admin == null ? null : admin.getId(), reqVO.getUsername(), false);
             throw exception(LOGIN_BAD);
         }
+        loginGuard.ok(reqVO.getUsername());
         writeLog("ADMIN", admin.getId(), admin.getUsername(), true);
         return session("ADMIN", admin.getId(), admin.getUsername());
     }
 
+    @Transactional
     public LoginRespVO refresh(RefreshReqVO reqVO) {
         RefreshTokenDO row = refreshTokenMapper.selectByHash(sha256(reqVO.getRefreshToken()));
         if (row == null || row.getExpireTime().isBefore(LocalDateTime.now())) {
             throw exception(TOKEN_EXPIRED);
         }
-        refreshTokenMapper.deleteById(row.getId());
+        if (refreshTokenMapper.deleteById(row.getId()) != 1) {
+            throw exception(TOKEN_EXPIRED);
+        }
         return session(row.getUserType(), row.getUserId(), row.getAccount());
     }
 
@@ -126,6 +139,10 @@ public class AuthService {
         row.setExpireTime(LocalDateTime.now().plusDays(7).withNano(0));
         refreshTokenMapper.insert(row);
         return raw;
+    }
+
+    private boolean passwordMatches(String hash, String raw) {
+        return encoder.matches(raw, hash == null ? DUMMY_HASH : hash) && hash != null;
     }
 
     private String sha256(String raw) {

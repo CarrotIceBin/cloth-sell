@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -15,6 +16,11 @@ public class TokenService {
     private final String secret;
 
     public TokenService(@Value("${app.token-secret}") String secret) {
+        if (secret == null || secret.length() < 32
+                || "change-me".equals(secret)
+                || "cloth-sell-dev-secret-change-me".equals(secret)) {
+            throw new IllegalStateException("请把 app.token-secret 设成至少 32 位的随机字符串");
+        }
         this.secret = secret;
     }
 
@@ -31,7 +37,7 @@ public class TokenService {
             }
             String[] parts = token.split("\\.", 2);
             String body = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
-            if (!sign(body).equals(parts[1])) {
+            if (!MessageDigest.isEqual(sign(body).getBytes(StandardCharsets.UTF_8), parts[1].getBytes(StandardCharsets.UTF_8))) {
                 return null;
             }
             String[] bits = body.split("\\|", 5);

@@ -5,7 +5,7 @@
       <h1>购物车</h1>
       <p v-if="!list.length" class="empty">购物车是空的</p>
       <article v-for="item in list" :key="item.id" class="card">
-        <div class="cover" :style="item.coverUrl ? { backgroundImage: `url(${item.coverUrl})` } : {}"></div>
+        <div class="cover" :style="coverStyle(item.coverUrl)"></div>
         <div class="body">
           <div class="top">
             <div>
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import ShopBar from '@/components/ShopBar.vue'
 import { CartApi, type CartItem } from '@/api/mall/client/cart'
+import { coverStyle } from '@/utils/cover'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 const router = useRouter()
