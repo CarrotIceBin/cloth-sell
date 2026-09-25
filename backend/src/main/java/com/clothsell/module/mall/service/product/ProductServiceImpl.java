@@ -14,6 +14,7 @@ import com.clothsell.framework.mybatis.core.query.LambdaQueryWrapperX;
 import com.clothsell.module.mall.vo.product.ProductPageReqVO;
 import com.clothsell.module.mall.vo.product.ProductSaveReqVO;
 import com.clothsell.framework.redis.core.MallCache;
+import com.clothsell.module.mall.service.money.MoneyClient;
 import com.clothsell.module.mall.vo.product.SkuSaveReqVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
@@ -50,6 +51,8 @@ public class ProductServiceImpl implements ProductService {
     private OrderLineMapper orderLineMapper;
     @Resource
     private MallCache mallCache;
+    @Resource
+    private MoneyClient moneyClient;
 
     @Override
     @Transactional
@@ -187,16 +190,30 @@ public class ProductServiceImpl implements ProductService {
             List<SkuDO> items = skus.getOrDefault(row.getId(), List.of());
             dto.setSkus(items);
             int stock = 0;
-            BigDecimal min = null;
             for (SkuDO sku : items) {
                 stock += sku.getStock();
-                if (min == null || sku.getPrice().compareTo(min) < 0) {
-                    min = sku.getPrice();
-                }
             }
             dto.setStock(stock);
-            dto.setMinPrice(min);
             list.add(dto);
+        }
+        try {
+            Map<Long, BigDecimal> mins = moneyClient.minPrices(ids);
+            for (ProductRespDTO dto : list) {
+                dto.setMinPrice(mins.get(dto.getId()));
+            }
+        } catch (RuntimeException ex) {
+            for (ProductRespDTO dto : list) {
+                BigDecimal min = null;
+                for (SkuDO sku : dto.getSkus()) {
+                    if (sku.getPrice() == null) {
+                        continue;
+                    }
+                    if (min == null || sku.getPrice().compareTo(min) < 0) {
+                        min = sku.getPrice();
+                    }
+                }
+                dto.setMinPrice(min);
+            }
         }
         return list;
     }

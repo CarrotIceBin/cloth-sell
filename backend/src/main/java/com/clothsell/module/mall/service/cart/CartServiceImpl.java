@@ -1,22 +1,27 @@
 package com.clothsell.module.mall.service.cart;
 
 import com.clothsell.module.mall.dal.dataobject.cart.CartDO;
+import com.clothsell.module.mall.dal.dataobject.cart.CartListDTO;
 import com.clothsell.module.mall.dal.dataobject.cart.CartRespDTO;
 import com.clothsell.module.mall.dal.dataobject.product.ProductDO;
 import com.clothsell.module.mall.dal.dataobject.product.SkuDO;
 import com.clothsell.module.mall.dal.mysql.cart.CartMapper;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
+import com.clothsell.module.mall.service.money.MoneyClient;
+import com.clothsell.module.mall.service.money.MoneyClient.CartAmounts;
 import com.clothsell.module.mall.service.product.ProductServiceImpl;
 import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.MONEY_UNAVAILABLE;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_NOT_EXISTS;
@@ -31,6 +36,8 @@ public class CartServiceImpl implements CartService {
     private SkuMapper skuMapper;
     @Resource
     private ProductMapper productMapper;
+    @Resource
+    private MoneyClient moneyClient;
 
     @Override
     public Long createCart(CartSaveReqVO createReqVO) {
@@ -81,7 +88,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartRespDTO> getCartList(Long userId) {
+    public CartListDTO getCartList(Long userId) {
         List<CartRespDTO> list = new ArrayList<>();
         for (CartDO item : cartMapper.selectByUserId(userId)) {
             SkuDO sku = skuMapper.selectById(item.getSkuId());
@@ -102,7 +109,24 @@ public class CartServiceImpl implements CartService {
             dto.setQty(item.getQty());
             list.add(dto);
         }
-        return list;
+        CartListDTO result = new CartListDTO();
+        result.setItems(list);
+        if (list.isEmpty()) {
+            result.setFreight(new BigDecimal("0.00"));
+            result.setPayable(new BigDecimal("0.00"));
+            return result;
+        }
+        CartAmounts amounts = moneyClient.cart(userId);
+        for (CartRespDTO item : list) {
+            BigDecimal amount = amounts.amounts().get(item.getId());
+            if (amount == null) {
+                throw exception(MONEY_UNAVAILABLE);
+            }
+            item.setAmount(amount);
+        }
+        result.setFreight(amounts.freight());
+        result.setPayable(amounts.payable());
+        return result;
     }
 
     private SkuDO requireShelfSku(Long skuId) {

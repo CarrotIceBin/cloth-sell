@@ -14,6 +14,7 @@ public class CartRespVO {
     private String color;
     private String size;
     private BigDecimal price;
+    private BigDecimal amount;
     private Integer stock;
     private Integer qty;
 }

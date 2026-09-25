@@ -41,7 +41,8 @@ async function refreshCount() {
     return
   }
   try {
-    const list = await CartApi.getCartList() as CartItem[]
+    const data = await CartApi.getCartList() as { items?: CartItem[] }
+    const list = data.items || []
     count.value = list.reduce((sum, item) => sum + Number(item.qty || 0), 0)
   } catch {
     count.value = 0

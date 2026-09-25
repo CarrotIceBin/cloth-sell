@@ -18,4 +18,5 @@ public interface ErrorCodeConstants {
     ErrorCode FILE_UPLOAD = new ErrorCode(1_002_001_031, "图片上传失败");
     ErrorCode FILE_TYPE = new ErrorCode(1_002_001_032, "只支持 jpg、png、gif、webp 图片");
     ErrorCode COVER_BAD = new ErrorCode(1_002_001_033, "封面地址无效");
+    ErrorCode MONEY_UNAVAILABLE = new ErrorCode(1_002_001_040, "金额计算服务不可用");
 }

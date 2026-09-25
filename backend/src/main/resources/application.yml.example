@@ -3,13 +3,13 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/cloth_sell?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    # PostgreSQL:
-    # url: jdbc:postgresql://127.0.0.1:5432/cloth_sell
-    # driver-class-name: org.postgresql.Driver
-    username: root
-    password: ${MYSQL_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/cloth_sell
+    # MySQL:
+    # url: jdbc:mysql://127.0.0.1:3306/cloth_sell?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    # driver-class-name: com.mysql.cj.jdbc.Driver
+    username: postgres
+    password: ${POSTGRES_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
@@ -39,6 +39,7 @@ app:
   admin-password: ${APP_ADMIN_PASSWORD:}
   cache:
     redis: ${REDIS_ENABLED:true}
+  money-url: ${MONEY_URL:http://127.0.0.1:5088}
   qiniu:
     access-key: ${QINIU_ACCESS_KEY:}
     secret-key: ${QINIU_SECRET_KEY:}

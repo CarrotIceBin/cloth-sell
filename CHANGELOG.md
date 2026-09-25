@@ -16,8 +16,7 @@
 ### 接口
 
 - 页面地址和浏览器里的请求仍是 `/`、`/admin` 和 `/mall`。
-- 开发服务器转发给后端之前，管理接口加上 `/admin-api`，顾客接口加上 `/client-api`。
-- 后端去掉这两个前缀后再进入原来的 `/mall` 接口。顾客前缀不能访问后台商品、订单和上传；后台前缀不能访问购物车和顾客订单。
+- 开发服务器直接把 `/mall`、`/files` 转到后端，不再使用 `/admin-api` 和 `/client-api`。
 
 ### 后台
 
@@ -27,5 +26,7 @@
 
 - 商品列表和详情默认写入 Redis，可用 `REDIS_ENABLED=false` 关闭。Redis 连不上时请求仍直接查库。
 - 启动结束后在控制台按顺序打印端口、数据库、登录校验和商品缓存。
-- 分页插件按数据源选择 MySQL 或 PostgreSQL。
+- 购物车金额、商品最低价，以及订单的单价、运费和应付，改由 C# 直接读写数据库。`ClothSell.Database` 负责连接，`ClothSell.Money` 负责金额接口。Java 只传用户或订单编号。
+- 商品新增改用 PostgreSQL 自增主键，不再依赖不存在的 `mall_product_seq`。金额服务不可用时，商品最低价仍用已查出的规格价格。
+- 分页插件按数据源选择 MySQL 或 PostgreSQL。当前默认连接本机 PostgreSQL 的 `cloth_sell`。
 - README 写明了接口前缀、首次创建管理员，以及令牌密钥和 Redis 的环境变量。库结构改由本地的 `backend/sql/cloth_sell.sql` 导入，仓库里不再列出已删除的 SQL 脚本。

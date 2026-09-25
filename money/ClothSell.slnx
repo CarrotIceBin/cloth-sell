@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ClothSell.Database/ClothSell.Database.csproj" />
+  <Project Path="ClothSell.Money/ClothSell.Money.csproj" />
+</Solution>

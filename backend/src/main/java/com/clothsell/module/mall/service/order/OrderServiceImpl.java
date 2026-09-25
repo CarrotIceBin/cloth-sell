@@ -14,15 +14,16 @@ import com.clothsell.module.mall.dal.mysql.order.OrderLineMapper;
 import com.clothsell.module.mall.dal.mysql.order.OrderMapper;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
+import com.clothsell.module.mall.service.money.MoneyClient;
 import com.clothsell.module.mall.vo.order.OrderPageReqVO;
 import com.clothsell.module.mall.vo.order.OrderSaveReqVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,10 +50,19 @@ public class OrderServiceImpl implements OrderService {
     private SkuMapper skuMapper;
     @Resource
     private ProductMapper productMapper;
+    @Resource
+    private MoneyClient moneyClient;
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     @Override
-    @Transactional
     public Long createOrder(OrderSaveReqVO createReqVO) {
+        Long id = transactionTemplate.execute(status -> insertOrder(createReqVO));
+        moneyClient.fillOrder(id);
+        return id;
+    }
+
+    private Long insertOrder(OrderSaveReqVO createReqVO) {
         List<CartDO> cart = cartMapper.selectByUserId(createReqVO.getUserId());
         if (cart.isEmpty()) {
             throw exception(CART_EMPTY);
@@ -70,10 +80,9 @@ public class OrderServiceImpl implements OrderService {
         order.setDistrict(district);
         order.setRegion(province + city + district);
         order.setAddress(createReqVO.getAddress().trim());
-        order.setFreight(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        order.setFreight(BigDecimal.ZERO);
         order.setTotalAmount(BigDecimal.ZERO);
         orderMapper.insert(order);
-        BigDecimal total = BigDecimal.ZERO;
         for (CartDO item : cart) {
             SkuDO sku = skuMapper.selectForUpdate(item.getSkuId());
             if (sku == null) {
@@ -99,13 +108,8 @@ public class OrderServiceImpl implements OrderService {
             line.setPrice(sku.getPrice());
             line.setQty(item.getQty());
             orderLineMapper.insert(line);
-            total = total.add(sku.getPrice().multiply(BigDecimal.valueOf(item.getQty())));
             cartMapper.deleteById(item.getId());
         }
-        OrderDO amount = new OrderDO();
-        amount.setId(order.getId());
-        amount.setTotalAmount(total.setScale(2, RoundingMode.HALF_UP));
-        orderMapper.updateById(amount);
         return order.getId();
     }
 

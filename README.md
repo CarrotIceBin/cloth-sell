@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、MySQL。数据源换成 PostgreSQL 时，分页会跟着切换。默认用 Redis 缓存商品，`REDIS_ENABLED=false` 时关闭。
+- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、PostgreSQL。数据源换成 MySQL 时，分页会跟着切换。默认用 Redis 缓存商品，`REDIS_ENABLED=false` 时关闭。
 - 前端：Vue 3、Vite、Vue Router、Element Plus、Axios
 
 ## 功能
@@ -33,13 +33,13 @@ backend/     Spring Boot，控制器仍是 /mall
 frontend/    Vue 商城与管理后台
 ```
 
-浏览器里的页面是 `/`、`/admin`，请求仍发到 `/mall`、`/files`。开发服务器转发给后端之前，管理接口加上 `/admin-api`，顾客接口加上 `/client-api`。后端去掉前缀后再进入原来的接口。两条前缀不能互串。变更记录在 `CHANGELOG.md`。
+浏览器里的页面是 `/`、`/admin`，接口直接请求 `/mall` 和 `/files`。变更记录在 `CHANGELOG.md`。
 
 接口文档由 springdoc 提供，后端起来后打开 `/swagger-ui.html`。
 
 ## 本地运行
 
-需要 JDK 17、Maven、Node.js 和 MySQL。
+需要 JDK 17、Maven、Node.js、.NET 10 和 PostgreSQL。
 
 ### 1. 数据库
 
@@ -70,13 +70,22 @@ copy src\main\resources\application.yml.example src\main\resources\application.y
 
 | 变量 | 作用 |
 | --- | --- |
-| `MYSQL_PASSWORD` | MySQL 密码，对应示例里的 `password` |
+| `POSTGRES_PASSWORD` | PostgreSQL 密码，对应用户 `postgres` |
 | `APP_TOKEN_SECRET` | 访问令牌密钥，至少 32 位。示例里的 `change-me` 不能用来启动 |
 | `APP_ADMIN_PASSWORD` | 首次创建管理员的口令，至少 8 位。已有 `admin` 时不会改密码 |
 | `REDIS_ENABLED` | 默认 `true`，连接 Redis 缓存商品。设为 `false` 则关闭。地址用 `REDIS_HOST`、`REDIS_PORT`，默认 `127.0.0.1:6379` |
 | `QINIU_ACCESS_KEY` / `QINIU_SECRET_KEY` / `QINIU_BUCKET` / `QINIU_DOMAIN` | 七牛上传；Access Key 为空时走本地目录 |
 
 服务端口 `8080`。
+
+金额由两个 C# 项目处理。`ClothSell.Database` 只负责打开数据库，`ClothSell.Money` 用它读写购物车金额、商品最低价，以及订单的单价、运费和应付。不接收 Java 传来的金额。先启动金额服务，再启动 Java：
+
+```bash
+cd money
+dotnet run --project ClothSell.Money
+```
+
+监听 `http://127.0.0.1:5088`，数据库口令用环境变量 `POSTGRES_PASSWORD`，或写在不提交的 `money/ClothSell.Money/appsettings.Local.json` 的 `MysqlPassword`。可用 `MONEY_URL` 改 Java 访问它的地址。这个服务没启动时，商品列表、购物车和下单会提示金额计算服务不可用。
 
 ```bash
 mvn spring-boot:run
@@ -90,7 +99,7 @@ npm install
 npm run dev
 ```
 
-开发服务器在 `http://localhost:5173`。页面请求 `/mall` 和 `/files`；转发到 `http://127.0.0.1:8080` 时，`/mall` 会被改写成 `/admin-api` 或 `/client-api`。
+开发服务器在 `http://localhost:5173`，并把 `/mall`、`/files` 代理到 `http://127.0.0.1:8080`。
 
 | 路径 | 页面 |
 | --- | --- |

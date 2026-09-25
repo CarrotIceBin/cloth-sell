@@ -3,6 +3,8 @@ package com.clothsell.module.mall.controller.client.cart;
 import com.clothsell.framework.common.pojo.CommonResult;
 import com.clothsell.framework.common.util.object.BeanUtils;
 import com.clothsell.module.mall.service.cart.CartService;
+import com.clothsell.module.mall.dal.dataobject.cart.CartListDTO;
+import com.clothsell.module.mall.vo.cart.CartListRespVO;
 import com.clothsell.module.mall.vo.cart.CartRespVO;
 import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.annotation.Resource;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.framework.common.pojo.CommonResult.success;
@@ -54,8 +54,13 @@ public class CartController {
 
     @GetMapping("/list")
     @PreAuthorize("@ss.hasPermission('mall:client-cart:query')")
-    public CommonResult<List<CartRespVO>> getCartList() {
-        return success(BeanUtils.toBean(cartService.getCartList(requireUser()), CartRespVO.class));
+    public CommonResult<CartListRespVO> getCartList() {
+        CartListDTO dto = cartService.getCartList(requireUser());
+        CartListRespVO vo = new CartListRespVO();
+        vo.setItems(BeanUtils.toBean(dto.getItems(), CartRespVO.class));
+        vo.setFreight(dto.getFreight());
+        vo.setPayable(dto.getPayable());
+        return success(vo);
     }
 
     private Long requireUser() {

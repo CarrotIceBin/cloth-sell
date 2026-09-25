@@ -28,7 +28,7 @@ const onResize = () => { width.value = window.innerWidth }
 const logout = async () => {
   const refreshToken = localStorage.getItem('adminRefresh')
   try {
-    if (refreshToken) await AuthApi.logout(refreshToken, 'admin')
+    if (refreshToken) await AuthApi.logout(refreshToken)
   } catch { /* 本地会话仍要清掉 */ }
   clearSession('admin')
   router.push('/admin/login')

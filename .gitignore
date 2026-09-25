@@ -2,6 +2,9 @@ backend/target/
 backend/uploads/
 frontend/node_modules/
 frontend/dist/
+money/**/bin/
+money/**/obj/
+money/**/appsettings.Local.json
 .tools/
 
 # secrets and local config

@@ -12,7 +12,7 @@
               <div class="name">{{ item.name }}</div>
               <div class="spec">{{ item.color }} / {{ item.size }}</div>
             </div>
-            <div class="line-price">¥{{ lineTotal(item) }}</div>
+            <div class="line-price">¥{{ money(item.amount) }}</div>
           </div>
           <div class="actions">
             <div class="stepper">
@@ -28,7 +28,7 @@
       <div v-if="list.length" class="checkout">
         <div>
           <div class="muted">共 {{ count }} 件</div>
-          <div class="sum">合计 ¥{{ total.toFixed(2) }}</div>
+          <div class="sum">合计 ¥{{ payable }}</div>
         </div>
         <el-button type="primary" @click="router.push('/checkout')">去下单</el-button>
       </div>
@@ -43,10 +43,14 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 const router = useRouter()
 const list = ref<CartItem[]>([])
-const total = computed(() => list.value.reduce((s, i) => s + Number(i.price || 0) * Number(i.qty || 0), 0))
+const payable = ref('0.00')
+const money = (n?: number) => Number(n || 0).toFixed(2)
 const count = computed(() => list.value.reduce((s, i) => s + Number(i.qty || 0), 0))
-const lineTotal = (item: CartItem) => (Number(item.price || 0) * Number(item.qty || 0)).toFixed(2)
-const load = async () => { list.value = await CartApi.getCartList() }
+const load = async () => {
+  const data = await CartApi.getCartList()
+  list.value = data.items || []
+  payable.value = money(data.payable)
+}
 const change = async (item: CartItem, qty: number) => {
   try {
     if (qty <= 0) await CartApi.deleteCart(item.id!)

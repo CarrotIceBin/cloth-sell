@@ -11,9 +11,7 @@ function refreshKey(kind: string) {
 
 function refreshSession(kind: string) {
   if (!refreshing[kind]) {
-    refreshing[kind] = raw.post('/mall/auth/refresh', { refreshToken: localStorage.getItem(refreshKey(kind)) }, {
-      headers: { 'X-Mall-Side': kind === 'admin' ? 'admin' : 'client' }
-    })
+    refreshing[kind] = raw.post('/mall/auth/refresh', { refreshToken: localStorage.getItem(refreshKey(kind)) })
       .then((res) => {
         const body = res.data
         if (!body || body.code !== 0) throw new Error(body?.msg || '登录已过期')
@@ -32,9 +30,6 @@ function refreshSession(kind: string) {
 service.interceptors.request.use((config) => {
   const kind = config.auth || config._kind
   config._kind = kind
-  const side = config.side || (kind === 'admin' ? 'admin' : 'client')
-  config.headers['X-Mall-Side'] = side
-  delete config.side
   // axios 的 auth 专用于 Basic 认证，会覆盖 Authorization
   delete config.auth
   const token = localStorage.getItem(kind === 'admin' ? 'adminToken' : 'userToken')
