@@ -1,0 +1,17 @@
+backend/target/
+backend/uploads/
+frontend/node_modules/
+frontend/dist/
+.tools/
+
+# secrets and local config
+backend/src/main/resources/application.yml
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/credentials.json
+**/*-credentials.json
+
+# local database dump
+backend/sql/cloth_sell.sql
