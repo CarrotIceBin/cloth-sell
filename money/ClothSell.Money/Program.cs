@@ -7,10 +7,11 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
         builder.WebHost.UseUrls("http://127.0.0.1:5088");
         ClothSellDatabase database = ClothSellDatabase.Create(
             builder.Configuration["Mysql"],
-            builder.Configuration["MysqlPassword"] ?? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
+            builder.Configuration["MysqlPassword"]);
         var repository = new MoneyRepository(database.Client);
         var app = builder.Build();
 

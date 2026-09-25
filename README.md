@@ -66,11 +66,10 @@ cd backend
 copy src\main\resources\application.yml.example src\main\resources\application.yml
 ```
 
-`application.yml` 不进入仓库。数据库口令、令牌密钥和七牛配置可以写在文件里，也可以用环境变量：
+`application.yml` 不进入仓库。复制示例后数据库口令已经写在 `password: 1234`。令牌密钥、管理员初始口令和七牛配置可以继续用环境变量：
 
 | 变量 | 作用 |
 | --- | --- |
-| `POSTGRES_PASSWORD` | PostgreSQL 密码，对应用户 `postgres` |
 | `APP_TOKEN_SECRET` | 访问令牌密钥，至少 32 位。示例里的 `change-me` 不能用来启动 |
 | `APP_ADMIN_PASSWORD` | 首次创建管理员的口令，至少 8 位。已有 `admin` 时不会改密码 |
 | `REDIS_ENABLED` | 默认 `true`，连接 Redis 缓存商品。设为 `false` 则关闭。地址用 `REDIS_HOST`、`REDIS_PORT`，默认 `127.0.0.1:6379` |
@@ -85,7 +84,7 @@ cd money
 dotnet run --project ClothSell.Money
 ```
 
-监听 `http://127.0.0.1:5088`，数据库口令用环境变量 `POSTGRES_PASSWORD`，或写在不提交的 `money/ClothSell.Money/appsettings.Local.json` 的 `MysqlPassword`。可用 `MONEY_URL` 改 Java 访问它的地址。这个服务没启动时，商品列表、购物车和下单会提示金额计算服务不可用。
+监听 `http://127.0.0.1:5088`。后端数据库口令写在 `application.yml` 的 `password`。可用 `MONEY_URL` 改 Java 访问金额服务的地址。金额服务没启动时，商品列表、购物车和下单会提示金额计算服务不可用。
 
 ```bash
 mvn spring-boot:run
