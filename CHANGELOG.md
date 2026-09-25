@@ -25,6 +25,7 @@
 
 ### 其他
 
-- 商品列表可以按 `app.cache.redis=true` 用 Redis 缓存，默认关闭。
+- 商品列表和详情默认写入 Redis，可用 `REDIS_ENABLED=false` 关闭。Redis 连不上时请求仍直接查库。
+- 启动结束后在控制台按顺序打印端口、数据库、登录校验、商品缓存，最后一行是「项目启动成功」。
 - 分页插件按数据源选择 MySQL 或 PostgreSQL。
 - README 写明了接口前缀、首次创建管理员，以及令牌密钥和 Redis 的环境变量。库结构改由本地的 `backend/sql/cloth_sell.sql` 导入，仓库里不再列出已删除的 SQL 脚本。

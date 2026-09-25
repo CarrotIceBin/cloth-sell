@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、MySQL。数据源换成 PostgreSQL 时，分页会跟着切换。`app.cache.redis=true` 时用 Redis 缓存商品，默认关闭。
+- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、MySQL。数据源换成 PostgreSQL 时，分页会跟着切换。默认用 Redis 缓存商品，`REDIS_ENABLED=false` 时关闭。
 - 前端：Vue 3、Vite、Vue Router、Element Plus、Axios
 
 ## 功能
@@ -73,7 +73,7 @@ copy src\main\resources\application.yml.example src\main\resources\application.y
 | `MYSQL_PASSWORD` | MySQL 密码，对应示例里的 `password` |
 | `APP_TOKEN_SECRET` | 访问令牌密钥，至少 32 位。示例里的 `change-me` 不能用来启动 |
 | `APP_ADMIN_PASSWORD` | 首次创建管理员的口令，至少 8 位。已有 `admin` 时不会改密码 |
-| `REDIS_ENABLED` | 设为 `true` 才连接 Redis。还可配 `REDIS_HOST`、`REDIS_PORT` |
+| `REDIS_ENABLED` | 默认 `true`，连接 Redis 缓存商品。设为 `false` 则关闭。地址用 `REDIS_HOST`、`REDIS_PORT`，默认 `127.0.0.1:6379` |
 | `QINIU_ACCESS_KEY` / `QINIU_SECRET_KEY` / `QINIU_BUCKET` / `QINIU_DOMAIN` | 七牛上传；Access Key 为空时走本地目录 |
 
 服务端口 `8080`。

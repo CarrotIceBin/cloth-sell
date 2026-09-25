@@ -38,7 +38,7 @@ app:
   token-secret: ${APP_TOKEN_SECRET:change-me}
   admin-password: ${APP_ADMIN_PASSWORD:}
   cache:
-    redis: ${REDIS_ENABLED:false}
+    redis: ${REDIS_ENABLED:true}
   qiniu:
     access-key: ${QINIU_ACCESS_KEY:}
     secret-key: ${QINIU_SECRET_KEY:}
