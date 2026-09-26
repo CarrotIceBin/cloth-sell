@@ -10,7 +10,12 @@
 
       <div class="layout">
         <nav class="side">
-          <a v-for="item in sections" :key="item.id" :href="'#help-' + item.id">{{ item.label }}</a>
+          <a
+            v-for="item in sections"
+            :key="item.id"
+            :href="'#help-' + item.id"
+            :class="{ active: active === item.id }"
+          >{{ item.label }}</a>
         </nav>
 
         <div class="body">
@@ -106,6 +111,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 
@@ -116,6 +122,37 @@ const sections = [
   { id: 'returns', label: '退换货' },
   { id: 'size', label: '尺码指南' }
 ]
+
+const active = ref(sections[0].id)
+let ticking = false
+
+function updateActive() {
+  ticking = false
+  const threshold = window.innerWidth > 900 ? 170 : 130
+  let current = sections[0].id
+  for (const item of sections) {
+    const el = document.getElementById('help-' + item.id)
+    if (el && el.getBoundingClientRect().top <= threshold) current = item.id
+  }
+  active.value = current
+}
+
+function onScroll() {
+  if (ticking) return
+  ticking = true
+  requestAnimationFrame(updateActive)
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', onScroll)
+  updateActive()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('resize', onScroll)
+})
 
 const sizeTable = [
   { size: 'S', chest: '82–86', waist: '64–68', length: '56–58', height: '155–162', weight: '45–52 kg' },
@@ -131,6 +168,7 @@ const sizeTable = [
 .side { position: sticky; top: 150px; align-self: start; display: grid; gap: 14px; font-size: 13px; }
 .side a { color: var(--muted); padding: 4px 0; }
 .side a:hover { color: var(--ink); }
+.side a.active { color: var(--ink); font-weight: 500; }
 .body { display: grid; gap: 12px; }
 .sec-block {
   padding: 30px 0 34px;
