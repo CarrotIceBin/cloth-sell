@@ -11,6 +11,7 @@ const router = createRouter({
   routes: [
     { path: '/', component: () => import('@/views/mall/client/home/index.vue') },
     { path: '/shop', component: () => import('@/views/mall/client/shop/index.vue') },
+    { path: '/about', component: () => import('@/views/mall/client/about/index.vue') },
     { path: '/help', component: () => import('@/views/mall/client/help/index.vue') },
     { path: '/journal', component: () => import('@/views/mall/client/journal/index.vue') },
     { path: '/journal/:id', component: () => import('@/views/mall/client/journal/detail.vue') },

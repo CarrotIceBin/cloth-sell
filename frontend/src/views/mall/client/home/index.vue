@@ -66,7 +66,7 @@
         <div class="wrap">
           <h2 class="serif">每一件都值得被认真对待</h2>
           <p>选用亲肤面料，版型反复打磨，只做耐穿的那几件。</p>
-          <router-link class="btn btn-light" to="/shop">了解品牌</router-link>
+          <router-link class="btn btn-light" to="/about">了解品牌</router-link>
         </div>
       </section>
 

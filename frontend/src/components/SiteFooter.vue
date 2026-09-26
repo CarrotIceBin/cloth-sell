@@ -10,6 +10,7 @@
     <div class="wrap cols">
       <div class="col">
         <h4>关于我们</h4>
+        <router-link to="/about">品牌故事</router-link>
         <router-link to="/shop">全部商品</router-link>
         <router-link to="/journal">期刊</router-link>
         <router-link to="/cart">购物车</router-link>

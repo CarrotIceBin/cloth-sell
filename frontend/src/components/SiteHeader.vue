@@ -5,6 +5,7 @@
   <header class="head">
     <div class="wrap row">
       <nav class="quick">
+        <router-link to="/about">品牌</router-link>
         <router-link to="/shop">门店</router-link>
         <router-link to="/journal">期刊</router-link>
         <router-link to="/help#help-contact">联系</router-link>
