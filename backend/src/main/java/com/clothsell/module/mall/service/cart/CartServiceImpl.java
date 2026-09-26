@@ -1,5 +1,6 @@
 package com.clothsell.module.mall.service.cart;
 
+import com.clothsell.framework.common.exception.ServiceException;
 import com.clothsell.module.mall.dal.dataobject.cart.CartDO;
 import com.clothsell.module.mall.dal.dataobject.cart.CartListDTO;
 import com.clothsell.module.mall.dal.dataobject.cart.CartRespDTO;
@@ -13,10 +14,12 @@ import com.clothsell.module.mall.service.money.MoneyClient.CartAmounts;
 import com.clothsell.module.mall.service.product.ProductServiceImpl;
 import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +30,12 @@ import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXI
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.STOCK_NOT_ENOUGH;
 
+@Slf4j
 @Service
 @Validated
 public class CartServiceImpl implements CartService {
+    private static final BigDecimal ZERO = new BigDecimal("0.00");
+
     @Resource
     private CartMapper cartMapper;
     @Resource
@@ -112,21 +118,43 @@ public class CartServiceImpl implements CartService {
         CartListDTO result = new CartListDTO();
         result.setItems(list);
         if (list.isEmpty()) {
-            result.setFreight(new BigDecimal("0.00"));
-            result.setPayable(new BigDecimal("0.00"));
+            result.setFreight(ZERO);
+            result.setPayable(ZERO);
             return result;
         }
-        CartAmounts amounts = moneyClient.cart(userId);
-        for (CartRespDTO item : list) {
-            BigDecimal amount = amounts.amounts().get(item.getId());
-            if (amount == null) {
-                throw exception(MONEY_UNAVAILABLE);
+        try {
+            CartAmounts amounts = moneyClient.cart(userId);
+            for (CartRespDTO item : list) {
+                BigDecimal amount = amounts.amounts().get(item.getId());
+                if (amount == null) {
+                    throw exception(MONEY_UNAVAILABLE);
+                }
+                item.setAmount(amount);
             }
-            item.setAmount(amount);
+            result.setFreight(amounts.freight());
+            result.setPayable(amounts.payable());
+        } catch (ServiceException ex) {
+            if (!MONEY_UNAVAILABLE.getCode().equals(ex.getCode())) {
+                throw ex;
+            }
+            log.warn("金额服务不可用，购物车金额改由本地计算：userId={}", userId);
+            BigDecimal payable = ZERO;
+            for (CartRespDTO item : list) {
+                BigDecimal amount = lineAmount(item.getPrice(), item.getQty());
+                item.setAmount(amount);
+                payable = payable.add(amount);
+            }
+            result.setFreight(ZERO);
+            result.setPayable(payable.setScale(2, RoundingMode.HALF_UP));
         }
-        result.setFreight(amounts.freight());
-        result.setPayable(amounts.payable());
         return result;
+    }
+
+    private static BigDecimal lineAmount(BigDecimal price, Integer qty) {
+        if (price == null || qty == null) {
+            return ZERO;
+        }
+        return price.multiply(BigDecimal.valueOf(qty)).setScale(2, RoundingMode.HALF_UP);
     }
 
     private String colorCover(SkuDO sku, ProductDO product) {
@@ -134,7 +162,8 @@ public class CartServiceImpl implements CartService {
         return cover != null ? cover : ProductServiceImpl.safeCover(product.getCoverUrl());
     }
 
-    private SkuDO requireShelfSku(Long skuId) {        SkuDO sku = skuMapper.selectById(skuId);
+    private SkuDO requireShelfSku(Long skuId) {
+        SkuDO sku = skuMapper.selectById(skuId);
         if (sku == null) {
             throw exception(SKU_NOT_EXISTS);
         }

@@ -1,6 +1,7 @@
 package com.clothsell.module.mall.service.money;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -18,7 +19,11 @@ public class MoneyClient {
     private final RestClient http;
 
     public MoneyClient(@Value("${app.money-url:http://127.0.0.1:5088}") String baseUrl) {
-        this.http = RestClient.builder().baseUrl(baseUrl).build();
+        // 金额服务是可选的，超时要短，否则不可达时会把请求拖住
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(1500);
+        factory.setReadTimeout(3000);
+        this.http = RestClient.builder().baseUrl(baseUrl).requestFactory(factory).build();
     }
 
     public CartAmounts cart(Long userId) {

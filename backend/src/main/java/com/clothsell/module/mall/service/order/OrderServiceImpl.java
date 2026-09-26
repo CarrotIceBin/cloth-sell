@@ -1,5 +1,6 @@
 package com.clothsell.module.mall.service.order;
 
+import com.clothsell.framework.common.exception.ServiceException;
 import com.clothsell.framework.common.pojo.PageParam;
 import com.clothsell.framework.common.pojo.PageResult;
 import com.clothsell.framework.common.util.object.BeanUtils;
@@ -18,12 +19,14 @@ import com.clothsell.module.mall.service.money.MoneyClient;
 import com.clothsell.module.mall.vo.order.OrderPageReqVO;
 import com.clothsell.module.mall.vo.order.OrderSaveReqVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,15 +34,19 @@ import java.util.Map;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.CART_EMPTY;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.MONEY_UNAVAILABLE;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_STATUS_INVALID;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.STOCK_NOT_ENOUGH;
 
+@Slf4j
 @Service
 @Validated
 public class OrderServiceImpl implements OrderService {
+    private static final BigDecimal ZERO = new BigDecimal("0.00");
+
     @Resource
     private OrderMapper orderMapper;
     @Resource
@@ -58,8 +65,35 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Long createOrder(OrderSaveReqVO createReqVO) {
         Long id = transactionTemplate.execute(status -> insertOrder(createReqVO));
-        moneyClient.fillOrder(id);
+        try {
+            moneyClient.fillOrder(id);
+        } catch (ServiceException ex) {
+            if (!MONEY_UNAVAILABLE.getCode().equals(ex.getCode())) {
+                throw ex;
+            }
+            log.warn("金额服务不可用，订单金额改由本地计算：orderId={}", id);
+            fillOrderLocally(id);
+        }
         return id;
+    }
+
+    private void fillOrderLocally(Long orderId) {
+        BigDecimal payable = ZERO;
+        for (OrderLineDO line : orderLineMapper.selectByOrderIds(List.of(orderId))) {
+            payable = payable.add(lineAmount(line.getPrice(), line.getQty()));
+        }
+        OrderDO update = new OrderDO();
+        update.setId(orderId);
+        update.setFreight(ZERO);
+        update.setTotalAmount(payable.setScale(2, RoundingMode.HALF_UP));
+        orderMapper.updateById(update);
+    }
+
+    private static BigDecimal lineAmount(BigDecimal price, Integer qty) {
+        if (price == null || qty == null) {
+            return ZERO;
+        }
+        return price.multiply(BigDecimal.valueOf(qty)).setScale(2, RoundingMode.HALF_UP);
     }
 
     private Long insertOrder(OrderSaveReqVO createReqVO) {
