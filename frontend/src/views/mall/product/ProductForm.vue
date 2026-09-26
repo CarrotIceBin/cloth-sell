@@ -26,7 +26,7 @@
           <el-button text @click="formData.skus.splice(index, 1)">删除</el-button>
         </div>
         <el-button @click="formData.skus.push({ color: '', size: '', price: undefined, stock: undefined })">加规格</el-button>
-        <p class="sku-tip">同一个颜色共用一张图，上传后会自动填到该颜色的其他尺码。</p>
+        <p class="sku-tip">同一个颜色共用一张图，上传后会自动填到该颜色的其他尺码。价格和库存直接填数字，不用带 ¥。</p>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -100,11 +100,36 @@ const uploadSkuCover = async (option: any, sku: Sku) => {
   }
 }
 
+// 价格和库存允许带 ¥、千分位等写法，提交前统一转成数字
+const toNumber = (value: any): number | undefined => {
+  if (value === null || value === undefined || value === '') return undefined
+  const text = String(value).replace(/[^\d.-]/g, '')
+  const num = Number(text)
+  return Number.isFinite(num) ? num : undefined
+}
+
+const toInteger = (value: any): number | undefined => {
+  if (value === null || value === undefined || value === '') return undefined
+  const text = String(value).replace(/[^\d-]/g, '')
+  const num = Number.parseInt(text, 10)
+  return Number.isFinite(num) ? num : undefined
+}
+
 const submitForm = async () => {
   await formRef.value.validate()
+  const skus = (formData.value.skus || []).map((sku) => ({
+    ...sku,
+    price: toNumber(sku.price),
+    stock: toInteger(sku.stock)
+  }))
+  const badRow = skus.findIndex((sku) => sku.price === undefined || sku.stock === undefined)
+  if (badRow >= 0) {
+    message.error(`第 ${badRow + 1} 行的价格和库存请填数字，不要带 ¥ 或单位`)
+    return
+  }
+  const data = { ...formData.value, skus } as Product
   formLoading.value = true
   try {
-    const data = formData.value as Product
     if (formType.value === 'create') {
       await ProductApi.createProduct(data)
       message.success(t('common.createSuccess'))
