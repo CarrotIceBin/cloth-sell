@@ -7,7 +7,7 @@
       <nav class="quick">
         <router-link to="/shop">门店</router-link>
         <router-link to="/journal">期刊</router-link>
-        <router-link to="/orders">联系</router-link>
+        <router-link to="/help#help-contact">联系</router-link>
       </nav>
       <router-link class="brand" to="/">
         <svg class="mark" viewBox="0 0 64 48" aria-hidden="true">

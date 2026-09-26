@@ -26,11 +26,11 @@
       </div>
       <div class="col">
         <h4>客户服务</h4>
-        <a href="#">联系我们</a>
-        <a href="#">常见问题</a>
-        <a href="#">配送说明</a>
-        <a href="#">退换货</a>
-        <router-link to="/shop">尺码指南</router-link>
+        <router-link to="/help#help-contact">联系我们</router-link>
+        <router-link to="/help#help-faq">常见问题</router-link>
+        <router-link to="/help#help-shipping">配送说明</router-link>
+        <router-link to="/help#help-returns">退换货</router-link>
+        <router-link to="/help#help-size">尺码指南</router-link>
       </div>
     </div>
     <div class="bottom">

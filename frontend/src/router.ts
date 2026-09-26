@@ -2,10 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior: () => ({ top: 0 }),
+  // 有帮助中心这类锚点链接，带 hash 时滚到对应位置
+  scrollBehavior: (to, from, savedPosition) => {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: to.hash, top: 120, behavior: 'smooth' }
+    return { top: 0 }
+  },
   routes: [
     { path: '/', component: () => import('@/views/mall/client/home/index.vue') },
     { path: '/shop', component: () => import('@/views/mall/client/shop/index.vue') },
+    { path: '/help', component: () => import('@/views/mall/client/help/index.vue') },
     { path: '/journal', component: () => import('@/views/mall/client/journal/index.vue') },
     { path: '/journal/:id', component: () => import('@/views/mall/client/journal/detail.vue') },
     { path: '/product/:id', component: () => import('@/views/mall/client/product/detail.vue') },
