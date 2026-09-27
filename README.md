@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、PostgreSQL。数据源换成 MySQL 时，分页会跟着切换。默认用 Redis 缓存商品，`REDIS_ENABLED=false` 时关闭。
+- 后端：Java 17、Spring Boot 3.3、Spring Security、MyBatis-Plus、PostgreSQL。数据源换成 MySQL 时，分页会跟着切换。默认用 Redis 缓存商品。
 - 前端：Vue 3、Vite、Vue Router、Element Plus、Axios
 
 ## 功能
@@ -75,13 +75,6 @@ frontend/    Vue 商城与管理后台
 
 ### 2. 后端配置
 
-```bash
-cd backend
-copy src\main\resources\application.yml.example src\main\resources\application.yml
-```
-
-`application.yml` 不进入仓库。复制示例后数据库口令已经写在 `password: 1234`。令牌密钥、管理员初始口令和七牛配置可以继续用环境变量：
-
 | 变量 | 作用 |
 | --- | --- |
 | `APP_TOKEN_SECRET` | 访问令牌密钥，至少 32 位。示例里的 `change-me` 不能用来启动 |
@@ -93,24 +86,7 @@ copy src\main\resources\application.yml.example src\main\resources\application.y
 
 金额由两个 C# 项目处理。`ClothSell.Database` 只负责打开数据库，`ClothSell.Money` 用它读写购物车金额、商品最低价，以及订单的单价、运费和应付。不接收 Java 传来的金额。先启动金额服务，再启动 Java：
 
-```bash
-cd money
-dotnet run --project ClothSell.Money
-```
-
-监听 `http://127.0.0.1:5088`。后端数据库口令写在 `application.yml` 的 `password`。可用 `MONEY_URL` 改 Java 访问金额服务的地址。金额服务没启动时，商品列表、购物车和下单会提示金额计算服务不可用。
-
-```bash
-mvn spring-boot:run
-```
-
 ### 3. 前端
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
 
 开发服务器在 `http://localhost:5173`，并把 `/mall`、`/files` 代理到 `http://127.0.0.1:8080`。
 
@@ -127,4 +103,4 @@ npm run dev
 | `/admin/login` | 管理员登录 |
 | `/admin/product`、`/admin/order`、`/admin/journal`、`/admin/review` | 商品、订单、期刊、评价管理 |
 
-期刊的文章在管理后台「期刊」页维护：可以按标题、标签和发布状态筛选，文章正文空行分段，未发布的文章顾客端看不到。评价在「评价」页维护，可以按商品、星级和显示状态筛选，支持隐藏或删除。封面沿用商品上传接口，配置七牛时存到七牛，否则存到本地 `uploads`。
+期刊的文章在管理后台「期刊」页维护：可以按标题、标签和发布状态筛选，文章正文空行分段，未发布的文章顾客端看不到。评价在「评价」页维护，可以按商品、星级和显示状态筛选，支持隐藏或删除。
