@@ -1,10 +1,11 @@
-package com.clothsell.module.mall.service.review;
+package com.clothsell.module.mall.service.review.impl;
 
 import com.clothsell.framework.common.pojo.PageParam;
 import com.clothsell.framework.common.pojo.PageResult;
 import com.clothsell.module.mall.dal.dataobject.review.ReviewDO;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.review.ReviewMapper;
+import com.clothsell.module.mall.service.review.ReviewService;
 import com.clothsell.module.mall.vo.review.ReviewPageReqVO;
 import com.clothsell.module.mall.vo.review.ReviewSaveReqVO;
 import com.clothsell.module.mall.vo.review.ReviewSummaryRespVO;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.LOGIN_BAD;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.REVIEW_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.REVIEW_NOT_EXISTS;
 
@@ -31,6 +33,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Long createReview(ReviewSaveReqVO createReqVO, Long userId, String author) {
+        if (userId == null) {
+            throw exception(LOGIN_BAD);
+        }
         if (productMapper.selectById(createReqVO.getProductId()) == null) {
             throw exception(PRODUCT_NOT_EXISTS);
         }
@@ -67,6 +72,12 @@ public class ReviewServiceImpl implements ReviewService {
     public PageResult<ReviewDO> getReviewPage(ReviewPageReqVO pageReqVO) {
         pageReqVO.toOrderBySql(PageParam.allow("createTime", "create_time", "id", "id"));
         return reviewMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public PageResult<ReviewDO> getPublishedReviewPage(ReviewPageReqVO pageReqVO) {
+        pageReqVO.setPublished(true);
+        return getReviewPage(pageReqVO);
     }
 
     @Override

@@ -3,9 +3,9 @@
     <SiteHeader />
     <main class="wrap" v-if="product">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <router-link to="/shop">商店</router-link>
+        <router-link to="/shop">{{ $t('商店') }}</router-link>
         <span>/</span>
         <span>{{ product.name }}</span>
       </nav>
@@ -28,13 +28,13 @@
         <div class="buy">
           <h1 class="serif">{{ product.name }}</h1>
           <p class="price">¥{{ money(current?.price ?? product.minPrice) }}</p>
-          <p class="stock">库存 {{ current?.stock ?? product.stock ?? 0 }} 件 · {{ product.category }}</p>
+          <p class="stock">{{ $t('库存 {stock} 件 · {category}', { stock: current?.stock ?? product.stock ?? 0, category: product.category }) }}</p>
 
-          <p class="label">颜色</p>
+          <p class="label">{{ $t('颜色') }}</p>
           <div class="chips">
             <button v-for="c in colors" :key="c" :class="{ on: color === c }" @click="pickColor(c)">{{ c }}</button>
           </div>
-          <p class="label">尺码</p>
+          <p class="label">{{ $t('尺码') }}</p>
           <div class="chips">
             <button
               v-for="s in sizes"
@@ -51,39 +51,39 @@
               <span>{{ qty }}</span>
               <button type="button" :disabled="qty >= maxQty" @click="qty = Math.min(maxQty, qty + 1)">+</button>
             </div>
-            <button class="btn" :disabled="!current?.id || maxQty < 1" @click="add">加入购物车</button>
-            <button class="wish" @click="favorite"><Collection /> 加入收藏</button>
+            <button class="btn" :disabled="!current?.id || maxQty < 1" @click="add">{{ $t('加入购物车') }}</button>
+            <button class="wish" @click="favorite"><Collection /> {{ $t('加入收藏') }}</button>
           </div>
 
           <ul class="info">
-            <li><Van /> 满 ¥600 免运费，48 小时内发货</li>
-            <li><RefreshLeft /> 支持 7 天无理由退换</li>
-            <li><Scissor /> 每笔订单可免费改衣一次</li>
+            <li><Van /> {{ $t('满 ¥600 免运费，48 小时内发货') }}</li>
+            <li><RefreshLeft /> {{ $t('支持 7 天无理由退换') }}</li>
+            <li><Scissor /> {{ $t('每笔订单可免费改衣一次') }}</li>
           </ul>
 
           <div class="meta">
-            <p><span>分类：</span>{{ product.category }}</p>
-            <p><span>标签：</span>{{ colors.join('、') }} / {{ allSizes.join('、') }}</p>
+            <p><span>{{ $t('分类：') }}</span>{{ product.category }}</p>
+            <p><span>{{ $t('标签：') }}</span>{{ colors.join('、') }} / {{ allSizes.join('、') }}</p>
           </div>
 
           <div class="share">
-            <span>分享</span>
+            <span>{{ $t('分享') }}</span>
             <button v-for="name in shares" :key="name" class="icon" :aria-label="name">{{ name }}</button>
           </div>
         </div>
       </section>
 
       <section class="reviews">
-        <h2 class="sec-title line-title">评价 ({{ summary.total || 0 }})</h2>
+        <h2 class="sec-title line-title">{{ $t('评价') }} ({{ summary.total || 0 }})</h2>
         <div class="review-top">
           <div class="score">
             <strong>{{ Number(summary.average || 0).toFixed(1) }}</strong>
             <span class="stars-line">{{ starsText(summary.average) }}</span>
-            <span class="muted">共 {{ summary.total || 0 }} 条评价</span>
+            <span class="muted">{{ $t('共 {total} 条评价', { total: summary.total || 0 }) }}</span>
           </div>
           <div class="bars">
             <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="bar-row">
-              <span class="bar-label">{{ star }} 星</span>
+              <span class="bar-label">{{ $t('{star} 星', { star }) }}</span>
               <span class="bar">
                 <span class="bar-fill" :style="{ width: barWidth(star) }" />
               </span>
@@ -94,21 +94,21 @@
 
         <div class="review-grid">
           <div class="review-form">
-            <h3>留下你的评价</h3>
+            <h3>{{ $t('留下你的评价') }}</h3>
             <div class="stars">
               <button v-for="n in 5" :key="n" :class="{ on: n <= rate }" @click="rate = n">★</button>
             </div>
-            <textarea v-model="reviewText" rows="4" maxlength="500" placeholder="说说这件衣服的版型与面料"></textarea>
+            <textarea v-model="reviewText" rows="4" maxlength="500" :placeholder="$t('说说这件衣服的版型与面料')"></textarea>
             <button class="btn" :disabled="submitting" @click="submitReview">
-              {{ submitting ? '提交中…' : '提交评价' }}
+              {{ submitting ? $t('提交中…') : $t('提交评价') }}
             </button>
-            <p class="tip">{{ loggedIn ? '每个账号对同一件商品只能评价一次。' : '登录后即可评价。' }}</p>
+            <p class="tip">{{ loggedIn ? $t('每个账号对同一件商品只能评价一次。') : $t('登录后即可评价。') }}</p>
           </div>
 
           <div class="review-list">
             <p v-if="!reviews.length" class="review-empty">
-              暂无评价<br />
-              <span>成为第一个评价的人。</span>
+              {{ $t('暂无评价') }}<br />
+              <span>{{ $t('成为第一个评价的人。') }}</span>
             </p>
             <article v-for="item in reviews" :key="item.id" class="review-item">
               <div class="review-head">
@@ -116,7 +116,7 @@
                 <span class="stars-line">{{ starsText(item.rating) }}</span>
                 <span class="muted">{{ fmtDate(item.createTime) }}</span>
               </div>
-              <p class="review-text">{{ item.content || '这位顾客没有留下文字评价。' }}</p>
+              <p class="review-text">{{ item.content || $t('这位顾客没有留下文字评价。') }}</p>
             </article>
             <Pagination
               v-if="reviewTotal > reviewParams.pageSize"
@@ -131,8 +131,8 @@
 
       <section class="related">
         <div class="sec-head">
-          <h2 class="sec-title">相关商品</h2>
-          <p class="sec-sub">你可能也会喜欢</p>
+          <h2 class="sec-title">{{ $t('相关商品') }}</h2>
+          <p class="sec-sub">{{ $t('你可能也会喜欢') }}</p>
         </div>
         <div class="p-grid">
           <ProductCard v-for="item in related" :key="item.id" :product="item" />
@@ -140,9 +140,9 @@
       </section>
 
       <nav class="switch">
-        <button class="move" :disabled="!prev" @click="go(prev)">← 上一件</button>
-        <router-link class="btn btn-ghost" to="/shop">返回商店</router-link>
-        <button class="move" :disabled="!next" @click="go(next)">下一件 →</button>
+        <button class="move" :disabled="!prev" @click="go(prev)">← {{ $t('上一件') }}</button>
+        <router-link class="btn btn-ghost" to="/shop">{{ $t('返回商店') }}</router-link>
+        <button class="move" :disabled="!next" @click="go(next)">{{ $t('下一件') }} →</button>
       </nav>
     </main>
     <SiteFooter />
@@ -161,9 +161,11 @@ import { coverStyle } from '@/utils/cover'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Collection, RefreshLeft, Scissor, Van } from '@element-plus/icons-vue'
+import { useI18n } from '@/hooks/web'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const product = ref<Product>()
 const related = ref<Product[]>([])
 const color = ref('')
@@ -230,7 +232,7 @@ const pickColor = (c: string) => {
 
 const go = (id?: number) => id && router.push('/product/' + id)
 
-const favorite = () => ElMessage.info('收藏功能即将开放')
+const favorite = () => ElMessage.info(t('收藏功能即将开放'))
 
 const loadReviews = async () => {
   const productId = Number(route.params.id)
@@ -255,7 +257,7 @@ const submitReview = async () => {
       rating: rate.value,
       content: reviewText.value.trim() || undefined
     })
-    ElMessage.success('评价已提交')
+    ElMessage.success(t('评价已提交'))
     reviewText.value = ''
     reviewParams.pageNo = 1
     await loadReviews()
@@ -275,7 +277,7 @@ const add = async () => {
   try {
     await CartApi.createCart({ skuId: current.value.id, qty: qty.value })
     window.dispatchEvent(new Event('cart-changed'))
-    ElMessage.success('已加入购物车')
+    ElMessage.success(t('已加入购物车'))
   } catch (e: any) {
     ElMessage.error(e.message)
   }

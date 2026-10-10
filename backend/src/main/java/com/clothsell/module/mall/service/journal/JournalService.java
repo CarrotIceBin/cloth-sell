@@ -16,4 +16,8 @@ public interface JournalService {
     JournalDO getJournal(Long id);
 
     PageResult<JournalDO> getJournalPage(@Valid JournalPageReqVO pageReqVO);
+
+    JournalDO getPublishedJournal(Long id);
+
+    PageResult<JournalDO> getPublishedJournalPage(@Valid JournalPageReqVO pageReqVO);
 }

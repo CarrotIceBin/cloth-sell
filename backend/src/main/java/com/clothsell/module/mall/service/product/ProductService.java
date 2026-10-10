@@ -16,4 +16,8 @@ public interface ProductService {
     ProductRespDTO getProduct(Long id);
 
     PageResult<ProductRespDTO> getProductPage(ProductPageReqVO pageReqVO);
+
+    ProductRespDTO getPublishedProduct(Long id);
+
+    PageResult<ProductRespDTO> getPublishedProductPage(ProductPageReqVO pageReqVO);
 }

@@ -5,9 +5,9 @@ import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.validation.Valid;
 
 public interface CartService {
-    Long createCart(@Valid CartSaveReqVO createReqVO);
+    Long createCart(@Valid CartSaveReqVO createReqVO, Long userId);
 
-    void updateCart(@Valid CartSaveReqVO updateReqVO);
+    void updateCart(@Valid CartSaveReqVO updateReqVO, Long userId);
 
     void deleteCart(Long id, Long userId);
 

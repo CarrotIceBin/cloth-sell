@@ -1,11 +1,12 @@
 <template>
   <main class="page">
     <div class="card">
-      <h1>管理登录</h1>
+      <div class="language-row"><LanguageSwitcher /></div>
+      <h1>{{ $t('管理登录') }}</h1>
       <el-form label-position="top">
-        <el-form-item label="账号"><el-input v-model="username" /></el-form-item>
-        <el-form-item label="密码"><el-input v-model="password" type="password" /></el-form-item>
-        <el-button type="primary" @click="submit">登录</el-button>
+        <el-form-item :label="$t('账号')"><el-input v-model="username" /></el-form-item>
+        <el-form-item :label="$t('密码')"><el-input v-model="password" type="password" /></el-form-item>
+        <el-button type="primary" @click="submit">{{ $t('登录') }}</el-button>
       </el-form>
     </div>
   </main>
@@ -15,6 +16,7 @@ import { AuthApi } from '@/api/mall/auth'
 import { setSession } from '@/hooks/web'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 const router = useRouter()
 const username = ref('admin')
 const password = ref('')
@@ -29,5 +31,6 @@ const submit = async () => {
 <style scoped>
 .page { min-height: 100vh; display: grid; place-items: center; }
 .card { width: min(400px, calc(100% - 32px)); background: #fff; padding: 28px; }
+.language-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 h1 { font-weight: 500; margin-top: 0; }
 </style>

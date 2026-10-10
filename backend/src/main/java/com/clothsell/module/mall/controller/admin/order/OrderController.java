@@ -32,9 +32,7 @@ public class OrderController {
     @GetMapping("/page")
     @PreAuthorize("@ss.hasPermission('mall:order:query')")
     public CommonResult<PageResult<OrderRespVO>> getOrderPage(@Valid OrderPageReqVO pageReqVO) {
-        pageReqVO.setAuthUserId(getAuthId());
-        pageReqVO.setUserId(null);
-        return success(toPage(orderService.getOrderPage(pageReqVO)));
+        return success(toPage(orderService.getAdminOrderPage(pageReqVO, getAuthId())));
     }
 
     @GetMapping("/get")

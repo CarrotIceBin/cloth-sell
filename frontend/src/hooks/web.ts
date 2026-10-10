@@ -1,4 +1,5 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { translate } from '@/i18n'
 
 export function useMessage() {
   return {
@@ -9,21 +10,13 @@ export function useMessage() {
       ElMessage.error(text)
     },
     async delConfirm() {
-      await ElMessageBox.confirm('确认删除？', '提示')
+      await ElMessageBox.confirm(translate('确认删除？'), translate('提示'))
     }
   }
 }
 
-const texts: Record<string, string> = {
-  'common.delSuccess': '删除成功',
-  'common.createSuccess': '创建成功',
-  'common.updateSuccess': '修改成功',
-  'action.create': '新增',
-  'action.update': '编辑'
-}
-
 export function useI18n() {
-  return { t: (key: string) => texts[key] || key }
+  return { t: (key: string) => translate(key) }
 }
 
 const ADMIN_PERMS = [

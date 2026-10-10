@@ -5,24 +5,24 @@
       <section class="hero wrap">
         <router-link class="block tall" :style="heroA" to="/shop">
           <div class="copy">
-            <p class="eyebrow">本季精选</p>
-            <h1>版型与面料，都值得挑剔</h1>
-            <span class="btn btn-line">立即选购</span>
+            <p class="eyebrow">{{ $t('本季精选') }}</p>
+            <h1>{{ $t('版型与面料，都值得挑剔') }}</h1>
+            <span class="btn btn-line">{{ $t('立即选购') }}</span>
           </div>
         </router-link>
         <div class="stack">
           <router-link class="block" :style="heroB" to="/shop">
             <div class="copy">
-              <p class="eyebrow">新品上架</p>
-              <h2>欢迎来到本季新装</h2>
-              <span class="btn btn-line">立即选购</span>
+              <p class="eyebrow">{{ $t('新品上架') }}</p>
+              <h2>{{ $t('欢迎来到本季新装') }}</h2>
+              <span class="btn btn-line">{{ $t('立即选购') }}</span>
             </div>
           </router-link>
           <router-link class="block" :style="heroC" to="/shop">
             <div class="copy">
-              <p class="eyebrow">限时价格</p>
-              <h2>经典款，更亲民</h2>
-              <span class="btn btn-line">立即选购</span>
+              <p class="eyebrow">{{ $t('限时价格') }}</p>
+              <h2>{{ $t('经典款，更亲民') }}</h2>
+              <span class="btn btn-line">{{ $t('立即选购') }}</span>
             </div>
           </router-link>
         </div>
@@ -30,13 +30,13 @@
 
       <section class="sec wrap">
         <div class="sec-head">
-          <h2 class="sec-title">按品类挑选</h2>
-          <p class="sec-sub">从日常到通勤，找到合适的那一件</p>
+          <h2 class="sec-title">{{ $t('按品类挑选') }}</h2>
+          <p class="sec-sub">{{ $t('从日常到通勤，找到合适的那一件') }}</p>
         </div>
         <div class="cats">
           <router-link v-for="cat in categories" :key="cat.label" class="cat" :to="{ path: '/shop', query: cat.q ? { q: cat.q } : {} }">
             <span class="ring">{{ cat.label.slice(0, 1) }}</span>
-            <span class="cat-name">{{ cat.label }}</span>
+            <span class="cat-name">{{ $t(cat.label) }}</span>
           </router-link>
         </div>
       </section>
@@ -44,34 +44,34 @@
       <section class="sec wrap">
         <div class="sec-head row-head">
           <div>
-            <h2 class="sec-title">新品推荐</h2>
-            <p class="sec-sub">刚刚上架，数量有限</p>
+            <h2 class="sec-title">{{ $t('新品推荐') }}</h2>
+            <p class="sec-sub">{{ $t('刚刚上架，数量有限') }}</p>
           </div>
           <div class="tabs">
             <button v-for="tab in tabs" :key="tab.key" :class="{ on: sort === tab.key }" @click="switchSort(tab.key)">
-              {{ tab.label }}
+              {{ $t(tab.label) }}
             </button>
           </div>
         </div>
-        <p v-if="!list.length" class="empty">还没有上架商品</p>
+        <p v-if="!list.length" class="empty">{{ $t('还没有上架商品') }}</p>
         <div class="p-grid">
           <ProductCard v-for="item in list" :key="item.id" :product="item" />
         </div>
         <div class="more">
-          <router-link class="btn btn-ghost" to="/shop">查看全部</router-link>
+          <router-link class="btn btn-ghost" to="/shop">{{ $t('查看全部') }}</router-link>
         </div>
       </section>
 
       <section class="banner" :style="banner">
         <div class="wrap">
-          <h2 class="serif">每一件都值得被认真对待</h2>
-          <p>选用亲肤面料，版型反复打磨，只做耐穿的那几件。</p>
-          <router-link class="btn btn-light" to="/about">了解品牌</router-link>
+          <h2 class="serif">{{ $t('每一件都值得被认真对待') }}</h2>
+          <p>{{ $t('选用亲肤面料，版型反复打磨，只做耐穿的那几件。') }}</p>
+          <router-link class="btn btn-light" to="/about">{{ $t('了解品牌') }}</router-link>
         </div>
       </section>
 
       <section class="sec wrap">
-        <p class="press-title">媒体报道</p>
+        <p class="press-title">{{ $t('媒体报道') }}</p>
         <div class="press">
           <span v-for="p in press" :key="p">{{ p }}</span>
         </div>
@@ -79,10 +79,10 @@
 
       <section class="sec wrap">
         <div class="sec-head">
-          <h2 class="sec-title">期刊</h2>
-          <p class="sec-sub">搭配灵感与面料知识</p>
+          <h2 class="sec-title">{{ $t('期刊') }}</h2>
+          <p class="sec-sub">{{ $t('搭配灵感与面料知识') }}</p>
         </div>
-        <p v-if="!posts.length" class="empty">还没有文章</p>
+        <p v-if="!posts.length" class="empty">{{ $t('还没有文章') }}</p>
         <div class="journal">
           <router-link v-for="(post, i) in posts" :key="post.id" class="post" :to="'/journal/' + post.id">
             <div class="post-cover" :style="articleStyle(post.coverUrl, i)">
@@ -90,11 +90,11 @@
             </div>
             <h3>{{ post.title }}</h3>
             <p>{{ post.summary }}</p>
-            <span class="read">阅读更多 →</span>
+            <span class="read">{{ $t('阅读更多 →') }}</span>
           </router-link>
         </div>
         <div class="more">
-          <router-link class="btn btn-ghost" to="/journal">查看全部文章</router-link>
+          <router-link class="btn btn-ghost" to="/journal">{{ $t('查看全部文章') }}</router-link>
         </div>
       </section>
     </main>

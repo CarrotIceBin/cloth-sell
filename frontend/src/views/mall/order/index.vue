@@ -1,33 +1,35 @@
 <template>
   <ContentWrap>
     <el-form :model="queryParams" ref="queryFormRef" :inline="true">
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" clearable placeholder="请选择状态" class="status-select">
-          <el-option label="待付款" value="PENDING" />
-          <el-option label="已付款" value="PAID" />
-          <el-option label="已发货" value="SHIPPED" />
-          <el-option label="已完成" value="DONE" />
-          <el-option label="已取消" value="CANCELLED" />
+      <el-form-item :label="$t('状态')" prop="status">
+        <el-select v-model="queryParams.status" clearable :placeholder="$t('请选择状态')" class="status-select">
+          <el-option :label="$t('待付款')" value="PENDING" />
+          <el-option :label="$t('已付款')" value="PAID" />
+          <el-option :label="$t('已发货')" value="SHIPPED" />
+          <el-option :label="$t('已完成')" value="DONE" />
+          <el-option :label="$t('已取消')" value="CANCELLED" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="handleQuery">搜索</el-button>
-        <el-button @click="resetQuery">重置</el-button>
+        <el-button @click="handleQuery">{{ $t('搜索') }}</el-button>
+        <el-button @click="resetQuery">{{ $t('重置') }}</el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
   <ContentWrap>
     <el-table v-loading="loading" :data="list" border stripe @sort-change="handleSort">
-      <el-table-column label="编号" prop="id" width="80" sortable="custom" />
-      <el-table-column label="状态" prop="statusText" />
-      <el-table-column label="金额" prop="totalAmount" sortable="custom" />
-      <el-table-column label="收货人" prop="receiverName" />
-      <el-table-column label="手机" prop="receiverPhone" min-width="130" />
-      <el-table-column label="地址" min-width="180" show-overflow-tooltip>
+      <el-table-column :label="$t('编号')" prop="id" width="80" sortable="custom" />
+      <el-table-column :label="$t('状态')" prop="statusText">
+        <template #default="scope">{{ $t(scope.row.statusText) }}</template>
+      </el-table-column>
+      <el-table-column :label="$t('金额')" prop="totalAmount" sortable="custom" />
+      <el-table-column :label="$t('收货人')" prop="receiverName" />
+      <el-table-column :label="$t('手机')" prop="receiverPhone" min-width="130" />
+      <el-table-column :label="$t('地址')" min-width="180" show-overflow-tooltip>
         <template #default="scope">{{ scope.row.province ? scope.row.province + (scope.row.city || '') + (scope.row.district || '') : (scope.row.region || '') }} {{ scope.row.address }}</template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" sortable="custom" min-width="160" />
-      <el-table-column label="操作" width="96">
+      <el-table-column :label="$t('创建时间')" prop="createTime" sortable="custom" min-width="160" />
+      <el-table-column :label="$t('操作')" width="96">
         <template #default="scope">
           <div class="order-actions">
             <el-tooltip v-for="item in actions(scope.row.status)" :key="item.status" :content="item.label" placement="top">
@@ -44,10 +46,11 @@
 import { OrderApi, Order } from '@/api/mall/order'
 import ContentWrap from '@/components/ContentWrap/index.vue'
 import Pagination from '@/components/Pagination/index.vue'
-import { useMessage } from '@/hooks/web'
+import { useI18n, useMessage } from '@/hooks/web'
 import { CircleCheck, CircleClose, Van, Wallet } from '@element-plus/icons-vue'
 defineOptions({ name: 'Order' })
 const message = useMessage()
+const { t } = useI18n()
 const loading = ref(true)
 const list = ref<Order[]>([])
 const total = ref(0)
@@ -80,16 +83,16 @@ const handleSort = (column: any) => {
   getList()
 }
 const actions = (status?: string) => {
-  const cancel = { status: 'CANCELLED', label: '取消并回库存', type: 'danger' as const, plain: true, icon: CircleClose }
-  if (status === 'PENDING') return [{ status: 'PAID', label: '标为已付款', type: 'primary' as const, icon: Wallet }, cancel]
-  if (status === 'PAID') return [{ status: 'SHIPPED', label: '标为已发货', type: 'primary' as const, icon: Van }, cancel]
-  if (status === 'SHIPPED') return [{ status: 'DONE', label: '标为已完成', type: 'primary' as const, icon: CircleCheck }]
+  const cancel = { status: 'CANCELLED', label: t('取消并回库存'), type: 'danger' as const, plain: true, icon: CircleClose }
+  if (status === 'PENDING') return [{ status: 'PAID', label: t('核实收款后标为已付款'), type: 'primary' as const, icon: Wallet }, cancel]
+  if (status === 'PAID') return [{ status: 'SHIPPED', label: t('标为已发货'), type: 'primary' as const, icon: Van }, cancel]
+  if (status === 'SHIPPED') return [{ status: 'DONE', label: t('标为已完成'), type: 'primary' as const, icon: CircleCheck }]
   return []
 }
 const change = async (id: number, status: string) => {
   try {
     await OrderApi.updateOrderStatus({ id, status })
-    message.success('已更新')
+    message.success(t('已更新'))
     await getList()
   } catch (e: any) { message.error(e.message) }
 }

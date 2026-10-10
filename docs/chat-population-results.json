@@ -1,0 +1,23 @@
+{
+  "logical_users" : 100000,
+  "load_websocket_connections" : 0,
+  "application_websocket_connection_limit" : 10000,
+  "database" : "isolated in-memory H2; account lookup mocked; private-room fixtures seeded directly",
+  "scope" : "closed-loop authenticated HTTP sends, 200 workers; latency excludes client executor queue; no WebSocket delivery measurement",
+  "result" : {
+    "scenario" : "100000_distinct_users_private_messages",
+    "requests" : 100000,
+    "concurrent_senders" : 200,
+    "seconds" : 24.77,
+    "requests_per_second" : 4036.38,
+    "http_p50_ms" : 44,
+    "http_p95_ms" : 110,
+    "http_p99_ms" : 221,
+    "http_max_ms" : 448,
+    "errors" : 0,
+    "expected_pushes" : 0,
+    "received_pushes" : 0,
+    "persisted_messages" : 100000,
+    "push_p95_ms" : -1
+  }
+}

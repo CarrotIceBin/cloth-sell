@@ -1,46 +1,48 @@
 <template>
   <ContentWrap>
     <el-form class="-mb-15px" :model="queryParams" ref="queryFormRef" :inline="true" label-width="68px">
-      <el-form-item label="标题" prop="title">
-        <el-input v-model="queryParams.title" placeholder="请输入标题" clearable @keyup.enter="handleQuery" class="w-title" />
+      <el-form-item :label="$t('标题')" prop="title">
+        <el-input v-model="queryParams.title" :placeholder="$t('请输入标题')" clearable @keyup.enter="handleQuery" class="w-title" />
       </el-form-item>
-      <el-form-item label="标签" prop="tag">
-        <el-select v-model="queryParams.tag" clearable placeholder="全部标签" class="w-tag">
-          <el-option v-for="tag in tagOptions" :key="tag" :label="tag" :value="tag" />
+      <el-form-item :label="$t('标签')" prop="tag">
+        <el-select v-model="queryParams.tag" clearable :placeholder="$t('全部标签')" class="w-tag">
+          <el-option v-for="tag in tagOptions" :key="tag" :label="$t(tag)" :value="tag" />
         </el-select>
       </el-form-item>
-      <el-form-item label="发布" prop="published">
-        <el-select v-model="queryParams.published" clearable placeholder="全部" class="w-pub">
-          <el-option label="已发布" :value="true" />
-          <el-option label="未发布" :value="false" />
+      <el-form-item :label="$t('发布')" prop="published">
+        <el-select v-model="queryParams.published" clearable :placeholder="$t('全部')" class="w-pub">
+          <el-option :label="$t('已发布')" :value="true" />
+          <el-option :label="$t('未发布')" :value="false" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
-        <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
+        <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> {{ $t('搜索') }}</el-button>
+        <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> {{ $t('重置') }}</el-button>
         <el-button type="primary" plain @click="openForm('create')" v-hasPermi="['mall:journal:create']">
-          <Icon icon="ep:plus" class="mr-5px" /> 新增
+          <Icon icon="ep:plus" class="mr-5px" /> {{ $t('admin.product.list.add') }}
         </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
   <ContentWrap>
     <el-table row-key="id" v-loading="loading" :data="list" :stripe="true" :border="true" :show-overflow-tooltip="true" @sort-change="handleSort">
-      <el-table-column label="编号" align="center" prop="id" width="80px" sortable="custom" />
-      <el-table-column label="标签" align="center" prop="tag" width="100px" />
-      <el-table-column label="标题" align="left" prop="title" min-width="200px" />
-      <el-table-column label="摘要" align="left" prop="summary" min-width="240px" />
-      <el-table-column label="发布" align="center" prop="published" width="90px">
+      <el-table-column :label="$t('编号')" align="center" prop="id" width="80px" sortable="custom" />
+      <el-table-column :label="$t('标签')" align="center" prop="tag" width="100px">
+        <template #default="scope">{{ $t(scope.row.tag) }}</template>
+      </el-table-column>
+      <el-table-column :label="$t('标题')" align="left" prop="title" min-width="200px" />
+      <el-table-column :label="$t('摘要')" align="left" prop="summary" min-width="240px" />
+      <el-table-column :label="$t('发布')" align="center" prop="published" width="90px">
         <template #default="scope">
           <el-tag :type="scope.row.published ? 'success' : 'info'" size="small">
-            {{ scope.row.published ? '已发布' : '未发布' }}
+            {{ scope.row.published ? $t('已发布') : $t('未发布') }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="170px" sortable="custom">
+      <el-table-column :label="$t('创建时间')" align="center" prop="createTime" width="170px" sortable="custom">
         <template #default="scope">{{ fmtTime(scope.row.createTime) }}</template>
       </el-table-column>
-      <el-table-column label="操作" align="center" fixed="right" width="130px">
+      <el-table-column :label="$t('操作')" align="center" fixed="right" width="130px">
         <template #default="scope">
           <el-button text size="small" @click="openForm('update', scope.row)" v-hasPermi="['mall:journal:update']"><Icon icon="ep:edit" /></el-button>
           <el-button text size="small" @click="handleDelete(scope.row.id)" v-hasPermi="['mall:journal:delete']"><Icon icon="ep:delete" /></el-button>

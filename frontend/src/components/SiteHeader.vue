@@ -1,14 +1,15 @@
 <template>
   <div class="topbar">
-    <div class="wrap">全场新品 8 折 · 满 ¥600 免运费</div>
+    <div class="wrap">{{ $t('全场新品 8 折 · 满 ¥600 免运费') }}</div>
   </div>
   <header class="head">
     <div class="wrap row">
       <nav class="quick">
-        <router-link to="/about">品牌</router-link>
-        <router-link to="/shop">门店</router-link>
-        <router-link to="/journal">期刊</router-link>
-        <router-link to="/help#help-contact">联系</router-link>
+        <router-link to="/about">{{ $t('品牌') }}</router-link>
+        <router-link to="/shop">{{ $t('门店') }}</router-link>
+        <router-link to="/journal">{{ $t('期刊') }}</router-link>
+        <router-link to="/help#help-contact">{{ $t('联系') }}</router-link>
+        <router-link to="/chat">{{ $t('chat.title') }}</router-link>
       </nav>
       <router-link class="brand" to="/">
         <svg class="mark" viewBox="0 0 64 48" aria-hidden="true">
@@ -20,9 +21,10 @@
         <small>MIANLI</small>
       </router-link>
       <div class="tools">
-        <button class="icon" aria-label="搜索" @click="toggleSearch"><Search /></button>
-        <router-link class="icon" to="/orders" aria-label="我的订单"><User /></router-link>
-        <router-link class="icon" to="/cart" aria-label="购物车">
+        <LanguageSwitcher />
+        <button class="icon" :aria-label="$t('搜索')" @click="toggleSearch"><Search /></button>
+        <router-link class="icon" to="/orders" :aria-label="$t('我的订单')"><User /></router-link>
+        <router-link class="icon" to="/cart" :aria-label="$t('购物车')">
           <ShoppingCart />
           <span v-if="count > 0" class="badge">{{ count > 99 ? '99+' : count }}</span>
         </router-link>
@@ -34,23 +36,23 @@
           ref="searchInput"
           v-model="keyword"
           type="search"
-          placeholder="搜索商品，回车确认"
+          :placeholder="$t('搜索商品，回车确认')"
           @keyup.enter="search"
         />
-        <button class="icon" aria-label="关闭搜索" @click="searchOpen = false"><Close /></button>
+        <button class="icon" :aria-label="$t('关闭搜索')" @click="searchOpen = false"><Close /></button>
       </div>
     </div>
     <nav class="menu">
       <div class="wrap menuro">
-        <router-link to="/" :class="{ on: route.path === '/' }">首页</router-link>
+        <router-link to="/" :class="{ on: route.path === '/' }">{{ $t('首页') }}</router-link>
         <router-link
           to="/shop"
           :class="{ on: route.path.startsWith('/shop') || route.path.startsWith('/product') }"
-        >商店</router-link>
-        <router-link to="/cart" :class="{ on: route.path.startsWith('/cart') }">购物车</router-link>
-        <router-link to="/orders" :class="{ on: route.path.startsWith('/orders') }">我的订单</router-link>
-        <router-link v-if="!name" to="/login" :class="{ on: route.path === '/login' }">登录</router-link>
-        <button v-else class="out" @click="logout">退出</button>
+        >{{ $t('商店') }}</router-link>
+        <router-link to="/cart" :class="{ on: route.path.startsWith('/cart') }">{{ $t('购物车') }}</router-link>
+        <router-link to="/orders" :class="{ on: route.path.startsWith('/orders') }">{{ $t('我的订单') }}</router-link>
+        <router-link v-if="!name" to="/login" :class="{ on: route.path === '/login' }">{{ $t('登录') }}</router-link>
+        <button v-else class="out" @click="logout">{{ $t('退出') }}</button>
       </div>
     </nav>
   </header>
@@ -61,6 +63,7 @@ import { Close, Search, ShoppingCart, User } from '@element-plus/icons-vue'
 import { CartApi, type CartItem } from '@/api/mall/client/cart'
 import { AuthApi } from '@/api/mall/auth'
 import { clearSession } from '@/hooks/web'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,7 +135,7 @@ watch(() => route.path, refreshCount)
 .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 26px; letter-spacing: 0.28em; }
 .brand small { font-family: "Segoe UI", sans-serif; font-size: 10px; letter-spacing: 0.4em; color: var(--muted); }
 .mark { width: 32px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.tools { display: flex; justify-content: flex-end; align-items: center; gap: 16px; }
+.tools { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
 .icon {
   position: relative;
   display: inline-flex;

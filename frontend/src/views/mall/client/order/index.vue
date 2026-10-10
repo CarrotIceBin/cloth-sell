@@ -3,23 +3,23 @@
     <SiteHeader />
     <main class="wrap">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <span>我的订单</span>
+        <span>{{ $t('我的订单') }}</span>
       </nav>
-      <h1 class="sec-title title">我的订单</h1>
+      <h1 class="sec-title title">{{ $t('我的订单') }}</h1>
 
       <p v-if="!list.length" class="empty">
-        还没有订单，<router-link class="link" to="/shop">去挑选商品</router-link>
+        {{ $t('还没有订单，') }}<router-link class="link" to="/shop">{{ $t('去挑选商品') }}</router-link>
       </p>
 
       <article v-for="order in list" :key="order.id" class="order">
         <header>
           <div>
-            <span class="no">订单号 {{ order.id }}</span>
+            <span class="no">{{ $t('订单号 {id}', { id: order.id }) }}</span>
             <span class="date">{{ order.createTime }}</span>
           </div>
-          <span class="status" :class="order.status">{{ order.statusText }}</span>
+          <span class="status" :class="order.status">{{ $t(order.statusText) }}</span>
         </header>
         <div class="body">
           <div class="lines">
@@ -33,8 +33,8 @@
             <p class="addr">{{ order.receiverName }} {{ order.receiverPhone }}</p>
             <p class="addr">{{ areaText(order) }} {{ order.address }}</p>
             <div class="foot">
-              <span class="total">合计 <strong>¥{{ money(order.totalAmount) }}</strong></span>
-              <button v-if="order.status === 'PENDING'" class="btn" @click="pay(order.id)">确认付款</button>
+              <span class="total">{{ $t('合计') }} <strong>¥{{ money(order.totalAmount) }}</strong></span>
+              <span v-if="order.status === 'PENDING'" class="payment-note">{{ $t('等待商家确认收款') }}</span>
             </div>
           </div>
         </div>
@@ -56,7 +56,6 @@ import SiteFooter from '@/components/SiteFooter.vue'
 import Pagination from '@/components/Pagination/index.vue'
 import { ClientOrderApi } from '@/api/mall/client/order'
 import type { Order } from '@/api/mall/order'
-import { ElMessage } from 'element-plus'
 
 const list = ref<Order[]>([])
 const total = ref(0)
@@ -69,16 +68,6 @@ const getList = async () => {
   const data = await ClientOrderApi.getOrderPage(queryParams)
   list.value = data.list
   total.value = data.total
-}
-
-const pay = async (id?: number) => {
-  if (!id) return
-  try {
-    await ClientOrderApi.payOrder(id)
-    await getList()
-  } catch (e: any) {
-    ElMessage.error(e.message)
-  }
 }
 
 onMounted(getList)
@@ -114,7 +103,7 @@ onMounted(getList)
 .foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 16px; }
 .total { font-size: 13px; color: var(--muted); }
 .total strong { color: var(--ink); font-size: 17px; margin-left: 6px; }
-.foot .btn { padding: 10px 22px; }
+.payment-note { color: var(--muted); font-size: 12px; }
 @media (max-width: 900px) {
   .body { grid-template-columns: 1fr; }
   .side { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 16px; }

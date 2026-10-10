@@ -5,21 +5,21 @@
     <main>
       <section class="hero">
         <div class="wrap">
-          <p class="eyebrow">品牌</p>
+          <p class="eyebrow">{{ $t('品牌') }}</p>
           <h1 class="serif">棉里 MIANLI</h1>
-          <p class="lead">做耐穿的基础款，把版型和面料都做扎实。</p>
+          <p class="lead">{{ $t('做耐穿的基础款，把版型和面料都做扎实。') }}</p>
         </div>
       </section>
 
       <div class="wrap">
         <section class="sec-block">
-          <h2>为什么是基础款</h2>
-          <p>基础款最难做。它没有印花和廓形可以遮掩，面料的手感、肩线的落点、下摆的收法，全都摊在明面上。也正因为难，做好一件能穿很多年，比做十件穿一季的更划算。</p>
-          <p>我们把精力放在三件事上：选对料、把版型改到服帖、把细节做耐穿。款式数量刻意控制在不多，方便你反复穿、反复搭。</p>
+          <h2>{{ $t('为什么是基础款') }}</h2>
+          <p>{{ $t('基础款最难做。它没有印花和廓形可以遮掩，面料的手感、肩线的落点、下摆的收法，全都摊在明面上。也正因为难，做好一件能穿很多年，比做十件穿一季的更划算。') }}</p>
+          <p>{{ $t('我们把精力放在三件事上：选对料、把版型改到服帖、把细节做耐穿。款式数量刻意控制在不多，方便你反复穿、反复搭。') }}</p>
         </section>
 
         <section class="sec-block">
-          <h2>三个坚持</h2>
+          <h2>{{ $t('三个坚持') }}</h2>
           <div class="values">
             <article v-for="item in values" :key="item.title" class="value">
               <span class="index">{{ item.index }}</span>
@@ -30,8 +30,8 @@
         </section>
 
         <section class="sec-block">
-          <h2>面料</h2>
-          <p>面料决定一件衣服能穿多久、穿起来舒不舒服。我们优先选亲肤、好打理、洗后不变形的材质，常见的有下面几类。</p>
+          <h2>{{ $t('面料') }}</h2>
+          <p>{{ $t('面料决定一件衣服能穿多久、穿起来舒不舒服。我们优先选亲肤、好打理、洗后不变形的材质，常见的有下面几类。') }}</p>
           <ul class="materials">
             <li v-for="item in materials" :key="item.name">
               <strong>{{ item.name }}</strong>
@@ -41,34 +41,34 @@
         </section>
 
         <section class="sec-block">
-          <h2>版型与制作</h2>
-          <p>一件衣服在打样阶段会反复试穿调整：肩线是否压肩、袖窿是否卡腋、衣长落在胯骨还是腰线。这些位置差一两公分，上身效果完全不同。</p>
-          <p>常见工艺也尽量做扎实：该加固的地方用双线，易走形的位置加衬，扣子和拉链选择耐用的款。做减法，把成本花在穿得到的地方。</p>
+          <h2>{{ $t('版型与制作') }}</h2>
+          <p>{{ $t('一件衣服在打样阶段会反复试穿调整：肩线是否压肩、袖窿是否卡腋、衣长落在胯骨还是腰线。这些位置差一两公分，上身效果完全不同。') }}</p>
+          <p>{{ $t('常见工艺也尽量做扎实：该加固的地方用双线，易走形的位置加衬，扣子和拉链选择耐用的款。做减法，把成本花在穿得到的地方。') }}</p>
         </section>
 
         <section class="sec-block">
-          <h2>包装与环保</h2>
-          <p>发货默认使用可回收纸箱，尽量不用塑料。包装够用就好，不做过度的礼盒和填充。需要送礼可以在订单里备注，我们会另外处理。</p>
-          <p>衣服本身的耐穿也是一种环保：少买、多穿、穿久一点，比任何口号都实在。</p>
+          <h2>{{ $t('包装与环保') }}</h2>
+          <p>{{ $t('发货默认使用可回收纸箱，尽量不用塑料。包装够用就好，不做过度的礼盒和填充。需要送礼可以在订单里备注，我们会另外处理。') }}</p>
+          <p>{{ $t('衣服本身的耐穿也是一种环保：少买、多穿、穿久一点，比任何口号都实在。') }}</p>
         </section>
 
         <section class="sec-block">
-          <h2>服务承诺</h2>
+          <h2>{{ $t('服务承诺') }}</h2>
           <ul class="promises">
             <li v-for="item in promises" :key="item.label">
               <span>{{ item.label }}</span>
               <strong>{{ item.text }}</strong>
             </li>
           </ul>
-          <p class="note">细则见 <router-link to="/help">帮助中心</router-link>。</p>
+          <p class="note">{{ $t('细则见') }} <router-link to="/help">{{ $t('帮助中心') }}</router-link>。</p>
         </section>
 
         <section class="cta">
-          <h2 class="serif">从一件基础款开始</h2>
-          <p>先用一件穿得最勤的那件试试。</p>
+          <h2 class="serif">{{ $t('从一件基础款开始') }}</h2>
+          <p>{{ $t('先用一件穿得最勤的那件试试。') }}</p>
           <div class="cta-actions">
-            <router-link class="btn" to="/shop">去商店看看</router-link>
-            <router-link class="btn btn-ghost" to="/help#help-contact">联系我们</router-link>
+            <router-link class="btn" to="/shop">{{ $t('去商店看看') }}</router-link>
+            <router-link class="btn btn-ghost" to="/help#help-contact">{{ $t('联系我们') }}</router-link>
           </div>
         </section>
       </div>
@@ -80,26 +80,28 @@
 <script setup lang="ts">
 import SiteHeader from '@/components/SiteHeader.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
+import { useI18n } from '@/hooks/web'
 
-const values = [
-  { index: '01', title: '面料优先', text: '先定面料再定款式。手感、透气性和水洗后的稳定性都要过关，才进入打样。' },
-  { index: '02', title: '版型反复', text: '同一件打几个版，试穿到肩线、袖窿和衣长都合适才定稿，不靠宽松遮掩。' },
-  { index: '03', title: '耐穿为上', text: '该加固的地方加固，尽量做减法。目标是能穿几季，而不是只穿一季。' }
-]
+const { t } = useI18n()
+const values = computed(() => [
+  { index: '01', title: t('面料优先'), text: t('先定面料再定款式。手感、透气性和水洗后的稳定性都要过关，才进入打样。') },
+  { index: '02', title: t('版型反复'), text: t('同一件打几个版，试穿到肩线、袖窿和衣长都合适才定稿，不靠宽松遮掩。') },
+  { index: '03', title: t('耐穿为上'), text: t('该加固的地方加固，尽量做减法。目标是能穿几季，而不是只穿一季。') }
+])
 
-const materials = [
-  { name: '全棉', text: '亲肤透气，日常通勤最稳的选择。做过水洗的棉布缩率更小，也更好打理。' },
-  { name: '羊毛与混纺', text: '挺括保暖，适合外套和大衣。混纺在保持手感的同时更好打理、不易起球。' },
-  { name: '亚麻', text: '夏天首选，透气散热。天然褶皱是它的特点，越穿越柔。' },
-  { name: '醋酸与真丝', text: '垂坠有光泽，适合衬衫和裙装。按洗标低温手洗或干洗，能保持质感更久。' }
-]
+const materials = computed(() => [
+  { name: t('全棉'), text: t('亲肤透气，日常通勤最稳的选择。做过水洗的棉布缩率更小，也更好打理。') },
+  { name: t('羊毛与混纺'), text: t('挺括保暖，适合外套和大衣。混纺在保持手感的同时更好打理、不易起球。') },
+  { name: t('亚麻'), text: t('夏天首选，透气散热。天然褶皱是它的特点，越穿越柔。') },
+  { name: t('醋酸与真丝'), text: t('垂坠有光泽，适合衬衫和裙装。按洗标低温手洗或干洗，能保持质感更久。') }
+])
 
-const promises = [
-  { label: '配送', text: '满 ¥600 免运费，付款后 48 小时内发货' },
-  { label: '退换', text: '签收后 7 天内无理由退换，吊牌与包装保持完整' },
-  { label: '改衣', text: '每笔订单可享一次免费改衣' },
-  { label: '客服', text: '工作日 9:00–18:00，订单里留言即可' }
-]
+const promises = computed(() => [
+  { label: t('配送'), text: t('满 ¥600 免运费，付款后 48 小时内发货') },
+  { label: t('退换'), text: t('签收后 7 天内无理由退换，吊牌与包装保持完整') },
+  { label: t('改衣'), text: t('每笔订单可享一次免费改衣') },
+  { label: t('客服'), text: t('工作日 9:00–18:00，订单里留言即可') }
+])
 </script>
 <style scoped>
 .hero { background: var(--soft); padding: 76px 0 70px; text-align: center; }

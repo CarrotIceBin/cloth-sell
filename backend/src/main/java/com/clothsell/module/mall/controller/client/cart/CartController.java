@@ -19,10 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.framework.common.pojo.CommonResult.success;
 import static com.clothsell.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static com.clothsell.module.mall.enums.ErrorCodeConstants.LOGIN_BAD;
 
 @RestController("clientCartController")
 @RequestMapping("/mall/client/cart")
@@ -33,29 +31,27 @@ public class CartController {
     @PostMapping("/create")
     @PreAuthorize("@ss.hasPermission('mall:client-cart:create')")
     public CommonResult<Long> createCart(@Valid @RequestBody CartSaveReqVO createReqVO) {
-        createReqVO.setUserId(requireUser());
-        return success(cartService.createCart(createReqVO));
+        return success(cartService.createCart(createReqVO, getLoginUserId()));
     }
 
     @PutMapping("/update")
     @PreAuthorize("@ss.hasPermission('mall:client-cart:update')")
     public CommonResult<Boolean> updateCart(@Valid @RequestBody CartSaveReqVO updateReqVO) {
-        updateReqVO.setUserId(requireUser());
-        cartService.updateCart(updateReqVO);
+        cartService.updateCart(updateReqVO, getLoginUserId());
         return success(true);
     }
 
     @DeleteMapping("/delete")
     @PreAuthorize("@ss.hasPermission('mall:client-cart:delete')")
     public CommonResult<Boolean> deleteCart(@RequestParam("id") Long id) {
-        cartService.deleteCart(id, requireUser());
+        cartService.deleteCart(id, getLoginUserId());
         return success(true);
     }
 
     @GetMapping("/list")
     @PreAuthorize("@ss.hasPermission('mall:client-cart:query')")
     public CommonResult<CartListRespVO> getCartList() {
-        CartListDTO dto = cartService.getCartList(requireUser());
+        CartListDTO dto = cartService.getCartList(getLoginUserId());
         CartListRespVO vo = new CartListRespVO();
         vo.setItems(BeanUtils.toBean(dto.getItems(), CartRespVO.class));
         vo.setFreight(dto.getFreight());
@@ -63,11 +59,4 @@ public class CartController {
         return success(vo);
     }
 
-    private Long requireUser() {
-        Long userId = getLoginUserId();
-        if (userId == null) {
-            throw exception(LOGIN_BAD);
-        }
-        return userId;
-    }
 }

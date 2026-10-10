@@ -3,23 +3,23 @@
     <SiteHeader />
     <main class="wrap">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <span>购物车</span>
+        <span>{{ $t('购物车') }}</span>
       </nav>
-      <h1 class="sec-title title">购物车</h1>
+      <h1 class="sec-title title">{{ $t('购物车') }}</h1>
 
       <p v-if="!list.length" class="empty">
-        购物车是空的，<router-link class="link" to="/shop">去挑选商品</router-link>
+        {{ $t('购物车是空的，') }}<router-link class="link" to="/shop">{{ $t('去挑选商品') }}</router-link>
       </p>
 
       <div v-else class="layout">
         <section class="items">
           <div class="head-row">
-            <span>商品</span>
-            <span>单价</span>
-            <span>数量</span>
-            <span>小计</span>
+            <span>{{ $t('商品') }}</span>
+            <span>{{ $t('单价') }}</span>
+            <span>{{ $t('数量') }}</span>
+            <span>{{ $t('小计') }}</span>
           </div>
           <article v-for="item in list" :key="item.id" class="row">
             <div class="info">
@@ -27,7 +27,7 @@
               <div class="text">
                 <router-link class="name" :to="'/product/' + item.productId">{{ item.name }}</router-link>
                 <span class="spec">{{ item.color }} / {{ item.size }}</span>
-                <button class="remove" @click="remove(item.id)">删除</button>
+                <button class="remove" @click="remove(item.id)">{{ $t('删除') }}</button>
               </div>
             </div>
             <div class="cell unit">¥{{ money(item.price) }}</div>
@@ -41,18 +41,18 @@
             <div class="cell sum">¥{{ money(item.amount) }}</div>
           </article>
 
-          <router-link class="btn btn-ghost continue" to="/shop">继续购物</router-link>
+          <router-link class="btn btn-ghost continue" to="/shop">{{ $t('继续购物') }}</router-link>
         </section>
 
         <aside class="panel">
-          <h2>订单摘要</h2>
+          <h2>{{ $t('订单摘要') }}</h2>
           <dl>
-            <div><dt>商品件数</dt><dd>{{ count }} 件</dd></div>
-            <div><dt>运费</dt><dd>{{ Number(freight) > 0 ? '¥' + money(freight) : '免运费' }}</dd></div>
-            <div class="total"><dt>合计</dt><dd>¥{{ payable }}</dd></div>
+            <div><dt>{{ $t('商品件数') }}</dt><dd>{{ count }}{{ $t('件') }}</dd></div>
+            <div><dt>{{ $t('运费') }}</dt><dd>{{ Number(freight) > 0 ? '¥' + money(freight) : $t('免运费') }}</dd></div>
+            <div class="total"><dt>{{ $t('合计') }}</dt><dd>¥{{ payable }}</dd></div>
           </dl>
-          <button class="btn full" @click="router.push('/checkout')">去结算</button>
-          <p class="hint">满 ¥600 免运费，支持 7 天无理由退换。</p>
+          <button class="btn full" @click="router.push('/checkout')">{{ $t('去结算') }}</button>
+          <p class="hint">{{ $t('满 ¥600 免运费，支持 7 天无理由退换。') }}</p>
         </aside>
       </div>
     </main>

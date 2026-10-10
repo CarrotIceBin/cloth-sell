@@ -13,6 +13,7 @@ const router = createRouter({
     { path: '/shop', component: () => import('@/views/mall/client/shop/index.vue') },
     { path: '/about', component: () => import('@/views/mall/client/about/index.vue') },
     { path: '/help', component: () => import('@/views/mall/client/help/index.vue') },
+    { path: '/chat', component: () => import('@/views/mall/chat/index.vue'), meta: { user: true } },
     { path: '/journal', component: () => import('@/views/mall/client/journal/index.vue') },
     { path: '/journal/:id', component: () => import('@/views/mall/client/journal/detail.vue') },
     { path: '/product/:id', component: () => import('@/views/mall/client/product/detail.vue') },
@@ -29,7 +30,9 @@ const router = createRouter({
         { path: 'product', component: () => import('@/views/mall/product/index.vue') },
         { path: 'order', component: () => import('@/views/mall/order/index.vue') },
         { path: 'journal', component: () => import('@/views/mall/journal/index.vue') },
-        { path: 'review', component: () => import('@/views/mall/review/index.vue') }
+        { path: 'review', component: () => import('@/views/mall/review/index.vue') },
+        { path: 'support', component: () => import('@/views/mall/support/index.vue') },
+        { path: 'chat', component: () => import('@/views/mall/chat/index.vue') }
       ]
     }
   ]

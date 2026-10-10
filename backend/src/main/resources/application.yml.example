@@ -40,6 +40,10 @@ app:
   cache:
     redis: ${REDIS_ENABLED:true}
   money-url: ${MONEY_URL:http://127.0.0.1:5088}
+  ai:
+    base-url: ${AI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:gpt-4o-mini}
   qiniu:
     access-key: ${QINIU_ACCESS_KEY:}
     secret-key: ${QINIU_SECRET_KEY:}

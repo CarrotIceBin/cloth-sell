@@ -2,19 +2,25 @@
   <div class="shell" :class="{ narrow }">
     <aside v-if="!narrow">
       <div class="brand">棉里</div>
-      <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">商品</router-link>
-      <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">订单</router-link>
-      <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">期刊</router-link>
-      <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">评价</router-link>
-      <button class="exit" @click="logout">退出</button>
+      <LanguageSwitcher class="language" />
+      <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">{{ $t('商品') }}</router-link>
+      <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">{{ $t('订单') }}</router-link>
+      <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">{{ $t('期刊') }}</router-link>
+      <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">{{ $t('评价') }}</router-link>
+      <router-link to="/admin/support" :class="{ on: route.path.startsWith('/admin/support') }">{{ $t('人工客服') }}</router-link>
+      <router-link to="/admin/chat" :class="{ on: route.path.startsWith('/admin/chat') }">{{ $t('chat.title') }}</router-link>
+      <button class="exit" @click="logout">{{ $t('退出') }}</button>
     </aside>
     <div class="main">
       <header v-if="narrow" class="top">
-        <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">商品</router-link>
-        <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">订单</router-link>
-        <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">期刊</router-link>
-        <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">评价</router-link>
-        <button @click="logout">退出</button>
+        <router-link to="/admin/product" :class="{ on: route.path.startsWith('/admin/product') }">{{ $t('商品') }}</router-link>
+        <router-link to="/admin/order" :class="{ on: route.path.startsWith('/admin/order') }">{{ $t('订单') }}</router-link>
+        <router-link to="/admin/journal" :class="{ on: route.path.startsWith('/admin/journal') }">{{ $t('期刊') }}</router-link>
+        <router-link to="/admin/review" :class="{ on: route.path.startsWith('/admin/review') }">{{ $t('评价') }}</router-link>
+        <LanguageSwitcher />
+        <router-link to="/admin/support" :class="{ on: route.path.startsWith('/admin/support') }">{{ $t('人工客服') }}</router-link>
+        <router-link to="/admin/chat" :class="{ on: route.path.startsWith('/admin/chat') }">{{ $t('chat.title') }}</router-link>
+        <button @click="logout">{{ $t('退出') }}</button>
       </header>
       <router-view />
     </div>
@@ -24,6 +30,7 @@
 import { clearSession } from '@/hooks/web'
 import { AuthApi } from '@/api/mall/auth'
 import { useRoute, useRouter } from 'vue-router'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 const route = useRoute()
 const router = useRouter()
 const width = ref(window.innerWidth)
@@ -56,6 +63,7 @@ aside {
   box-sizing: border-box;
 }
 .brand { letter-spacing: 0.2em; font-weight: 700; margin: 0 12px 28px; font-size: 18px; }
+.language { margin: 0 12px 16px; }
 aside a, .top a {
   display: block;
   padding: 12px 14px;

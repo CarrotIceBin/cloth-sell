@@ -23,6 +23,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/mall/auth/**").permitAll()
+                        .requestMatchers("/mall/client/support/status", "/mall/client/support/chat").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/mall/support/ws").permitAll()
                         .requestMatchers(HttpMethod.GET, "/mall/client/product/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/mall/client/journal/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/mall/client/review/**").permitAll()

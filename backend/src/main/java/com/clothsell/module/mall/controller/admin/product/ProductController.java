@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.clothsell.framework.common.pojo.CommonResult.success;
-import static com.clothsell.framework.security.core.util.SecurityFrameworkUtils.getAuthId;
 
 @Tag(name = "管理后台 - 商品")
 @RestController
@@ -39,7 +38,6 @@ public class ProductController {
     @Operation(summary = "创建商品")
     @PreAuthorize("@ss.hasPermission('mall:product:create')")
     public CommonResult<Long> createProduct(@Valid @RequestBody ProductSaveReqVO createReqVO) {
-        getAuthId();
         return success(productService.createProduct(createReqVO));
     }
 

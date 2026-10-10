@@ -1,4 +1,4 @@
-package com.clothsell.module.mall.service.money;
+package com.clothsell.module.mall.integration.money;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;

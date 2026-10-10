@@ -2,10 +2,10 @@
   <article class="card" @click="open">
     <div class="thumb" :style="coverStyle(product.coverUrl)">
       <div class="tools">
-        <button class="tool" aria-label="收藏" @click.stop="favorite"><Collection /></button>
-        <button class="tool" aria-label="查看" @click.stop="open"><View /></button>
+        <button class="tool" :aria-label="$t('收藏')" @click.stop="favorite"><Collection /></button>
+        <button class="tool" :aria-label="$t('查看')" @click.stop="open"><View /></button>
       </div>
-      <span v-if="!product.stock" class="sold">已售罄</span>
+      <span v-if="!product.stock" class="sold">{{ $t('已售罄') }}</span>
     </div>
     <h3 class="name">{{ product.name }}</h3>
     <p class="price">¥{{ money(product.minPrice) }}</p>
@@ -17,12 +17,14 @@ import { Collection, View } from '@element-plus/icons-vue'
 import type { Product } from '@/api/mall/product'
 import { coverStyle } from '@/utils/cover'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/hooks/web'
 
 const props = defineProps<{ product: Product }>()
 const router = useRouter()
+const { t } = useI18n()
 const money = (n?: number) => Number(n || 0).toFixed(2)
 const open = () => props.product.id && router.push('/product/' + props.product.id)
-const favorite = () => ElMessage.info('收藏功能即将开放')
+const favorite = () => ElMessage.info(t('收藏功能即将开放'))
 </script>
 <style scoped>
 .card { cursor: pointer; text-align: center; }

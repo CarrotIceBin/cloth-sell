@@ -81,7 +81,6 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                 new SimpleGrantedAuthority("mall:client-cart:delete"),
                 new SimpleGrantedAuthority("mall:client-order:query"),
                 new SimpleGrantedAuthority("mall:client-order:create"),
-                new SimpleGrantedAuthority("mall:client-order:update"),
                 new SimpleGrantedAuthority("mall:client-journal:query"),
                 new SimpleGrantedAuthority("mall:client-review:query"),
                 new SimpleGrantedAuthority("mall:client-review:create")

@@ -18,7 +18,7 @@ export default defineConfig({
     allowedHosts: ['.trycloudflare.com', '.mylyx.store'],
     port: 5173,
     proxy: {
-      '/mall': backend,
+      '/mall': { target: backend, ws: true },
       '/files': backend
     }
   }

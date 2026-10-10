@@ -3,17 +3,17 @@
     <SiteHeader />
     <main class="article" v-if="post">
       <nav class="crumb">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <router-link to="/journal">期刊</router-link>
+        <router-link to="/journal">{{ $t('期刊') }}</router-link>
         <span>/</span>
-        <span>{{ post.tag }}</span>
+        <span>{{ $t(post.tag) }}</span>
       </nav>
 
       <header class="head">
-        <p class="tag">{{ post.tag }}</p>
+        <p class="tag">{{ $t(post.tag) }}</p>
         <h1 class="serif">{{ post.title }}</h1>
-        <p class="meta">{{ date(post.createTime) }} · 棉里编辑部</p>
+        <p class="meta">{{ date(post.createTime) }} · {{ $t('棉里编辑部') }}</p>
       </header>
 
       <div class="cover" :style="articleStyle(post.coverUrl)"></div>
@@ -23,9 +23,9 @@
       </div>
 
       <footer class="foot">
-        <router-link class="btn btn-ghost" to="/journal">← 返回期刊</router-link>
+        <router-link class="btn btn-ghost" to="/journal">← {{ $t('返回期刊') }}</router-link>
         <router-link v-if="next" class="next" :to="'/journal/' + next.id">
-          下一篇：{{ next.title }} →
+          {{ $t('下一篇：{title} →', { title: next.title }) }}
         </router-link>
       </footer>
     </main>

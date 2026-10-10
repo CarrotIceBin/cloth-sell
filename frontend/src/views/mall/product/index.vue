@@ -1,32 +1,32 @@
 <template>
   <ContentWrap>
     <el-form class="-mb-15px" :model="queryParams" ref="queryFormRef" :inline="true" label-width="68px">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter="handleQuery" class="!w-240px" />
+      <el-form-item :label="$t('名称')" prop="name">
+        <el-input v-model="queryParams.name" :placeholder="$t('请输入名称')" clearable @keyup.enter="handleQuery" class="!w-240px" />
       </el-form-item>
       <el-form-item>
-        <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
-        <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
+        <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> {{ $t('搜索') }}</el-button>
+        <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> {{ $t('重置') }}</el-button>
         <el-button type="primary" plain @click="openForm('create')" v-hasPermi="['mall:product:create']">
-          <Icon icon="ep:plus" class="mr-5px" /> 新增
+          <Icon icon="ep:plus" class="mr-5px" /> {{ $t('admin.product.list.add') }}
         </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
   <ContentWrap>
     <div class="table-toolbar mb-10px flex items-center justify-end">
-      <el-button size="small" @click="openSettings">列设置</el-button>
+      <el-button size="small" @click="openSettings">{{ $t('列设置') }}</el-button>
     </div>
     <ColumnSettings v-model:modelValue="popoverVisible" :allColumns="allColumns" :columns="visibleColsArray" @update:columns="(v) => (visibleColsArray = v)" @save="() => saveColumns()" />
     <el-table row-key="id" v-loading="loading" :data="list" :stripe="true" :border="true" :show-overflow-tooltip="true" @sort-change="handleSort">
-      <el-table-column v-if="isColVisible('name')" label="名称" align="center" prop="name" sortable="custom" />
-      <el-table-column v-if="isColVisible('category')" label="分类" align="center" prop="category" />
-      <el-table-column v-if="isColVisible('onShelf')" label="上架" align="center" prop="onShelf">
-        <template #default="scope">{{ scope.row.onShelf ? '是' : '否' }}</template>
+      <el-table-column v-if="isColVisible('name')" :label="$t('名称')" align="center" prop="name" sortable="custom" />
+      <el-table-column v-if="isColVisible('category')" :label="$t('分类')" align="center" prop="category" />
+      <el-table-column v-if="isColVisible('onShelf')" :label="$t('上架')" align="center" prop="onShelf">
+        <template #default="scope">{{ scope.row.onShelf ? $t('是') : $t('否') }}</template>
       </el-table-column>
-      <el-table-column v-if="isColVisible('minPrice')" label="最低价" align="center" prop="minPrice" />
-      <el-table-column v-if="isColVisible('stock')" label="库存" align="center" prop="stock" />
-      <el-table-column label="操作" align="center" fixed="right" min-width="120px">
+      <el-table-column v-if="isColVisible('minPrice')" :label="$t('最低价')" align="center" prop="minPrice" />
+      <el-table-column v-if="isColVisible('stock')" :label="$t('库存')" align="center" prop="stock" />
+      <el-table-column :label="$t('操作')" align="center" fixed="right" min-width="120px">
         <template #default="scope">
           <el-button text size="small" @click="openForm('update', scope.row)" v-hasPermi="['mall:product:update']"><Icon icon="ep:edit" /></el-button>
           <el-button text size="small" @click="handleDelete(scope.row.id)" v-hasPermi="['mall:product:delete']"><Icon icon="ep:delete" /></el-button>

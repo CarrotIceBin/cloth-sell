@@ -1,4 +1,4 @@
-package com.clothsell.module.mall.service.order;
+package com.clothsell.module.mall.service.order.impl;
 
 import com.clothsell.framework.common.exception.ServiceException;
 import com.clothsell.framework.common.pojo.PageParam;
@@ -15,7 +15,8 @@ import com.clothsell.module.mall.dal.mysql.order.OrderLineMapper;
 import com.clothsell.module.mall.dal.mysql.order.OrderMapper;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
-import com.clothsell.module.mall.service.money.MoneyClient;
+import com.clothsell.module.mall.integration.money.MoneyClient;
+import com.clothsell.module.mall.service.order.OrderService;
 import com.clothsell.module.mall.vo.order.OrderPageReqVO;
 import com.clothsell.module.mall.vo.order.OrderSaveReqVO;
 import jakarta.annotation.Resource;
@@ -40,6 +41,7 @@ import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_STATUS_IN
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.STOCK_NOT_ENOUGH;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.LOGIN_BAD;
 
 @Slf4j
 @Service
@@ -63,7 +65,11 @@ public class OrderServiceImpl implements OrderService {
     private TransactionTemplate transactionTemplate;
 
     @Override
-    public Long createOrder(OrderSaveReqVO createReqVO) {
+    public Long createOrder(OrderSaveReqVO createReqVO, Long userId) {
+        if (userId == null) {
+            throw exception(LOGIN_BAD);
+        }
+        createReqVO.setUserId(userId);
         Long id = transactionTemplate.execute(status -> insertOrder(createReqVO));
         try {
             moneyClient.fillOrder(id);
@@ -148,24 +154,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void payOrder(Long id, Long userId) {
-        OrderDO current = orderMapper.selectById(id);
-        if (current == null || !current.getUserId().equals(userId)) {
-            throw exception(ORDER_NOT_EXISTS);
-        }
-        if (!"PENDING".equals(current.getStatus())) {
-            throw exception(ORDER_STATUS_INVALID);
-        }
-        OrderDO update = new OrderDO();
-        update.setId(id);
-        update.setStatus("PAID");
-        orderMapper.updateById(update);
-    }
-
-    @Override
     @Transactional
     public void updateOrderStatus(Long id, String status) {
-        OrderDO current = orderMapper.selectById(id);
+        OrderDO current = orderMapper.selectForUpdate(id);
         if (current == null) {
             throw exception(ORDER_NOT_EXISTS);
         }
@@ -200,10 +191,38 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderRespDTO getUserOrder(Long id, Long userId) {
+        if (userId == null) {
+            throw exception(LOGIN_BAD);
+        }
+        OrderRespDTO order = getOrder(id);
+        if (!userId.equals(order.getUserId())) {
+            throw exception(ORDER_NOT_EXISTS);
+        }
+        return order;
+    }
+
+    @Override
     public PageResult<OrderRespDTO> getOrderPage(OrderPageReqVO pageReqVO) {
         pageReqVO.toOrderBySql(PageParam.allow("createTime", "create_time", "id", "id", "totalAmount", "total_amount"));
         PageResult<OrderDO> page = orderMapper.selectPage(pageReqVO);
         return new PageResult<>(assemble(page.getList()), page.getTotal());
+    }
+
+    @Override
+    public PageResult<OrderRespDTO> getUserOrderPage(OrderPageReqVO pageReqVO, Long userId) {
+        if (userId == null) {
+            throw exception(LOGIN_BAD);
+        }
+        pageReqVO.setUserId(userId);
+        return getOrderPage(pageReqVO);
+    }
+
+    @Override
+    public PageResult<OrderRespDTO> getAdminOrderPage(OrderPageReqVO pageReqVO, Long authUserId) {
+        pageReqVO.setAuthUserId(authUserId);
+        pageReqVO.setUserId(null);
+        return getOrderPage(pageReqVO);
     }
 
     private boolean allowed(String now, String next) {

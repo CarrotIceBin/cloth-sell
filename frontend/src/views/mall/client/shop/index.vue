@@ -3,13 +3,13 @@
     <SiteHeader />
     <main class="wrap">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <span>商店</span>
+        <span>{{ $t('商店') }}</span>
       </nav>
       <p v-if="keyword" class="searching">
-        搜索「{{ keyword }}」共 {{ total }} 件
-        <button @click="clearSearch">清除</button>
+        {{ $t('搜索「{keyword}」共 {total} 件', { keyword, total }) }}
+        <button @click="clearSearch">{{ $t('清除') }}</button>
       </p>
       <div class="filters">
         <div class="cats">
@@ -18,19 +18,19 @@
             :key="cat.label"
             :class="{ on: name === cat.q }"
             @click="pick(cat.q)"
-          >{{ cat.label }}</button>
+          >{{ $t(cat.label) }}</button>
         </div>
         <label class="sort">
-          <span>排序</span>
+          <span>{{ $t('排序') }}</span>
           <select v-model="sortKey" @change="switchSort">
-            <option value="default">默认排序</option>
-            <option value="new">最新上架</option>
-            <option value="name">名称</option>
+            <option value="default">{{ $t('默认排序') }}</option>
+            <option value="new">{{ $t('最新上架') }}</option>
+            <option value="name">{{ $t('名称') }}</option>
           </select>
         </label>
       </div>
 
-      <p v-if="!list.length" class="empty">还没有上架商品</p>
+      <p v-if="!list.length" class="empty">{{ $t('还没有上架商品') }}</p>
       <div class="p-grid">
         <ProductCard v-for="item in list" :key="item.id" :product="item" />
       </div>

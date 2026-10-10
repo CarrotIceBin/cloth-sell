@@ -7,13 +7,17 @@ import com.clothsell.module.mall.vo.order.OrderSaveReqVO;
 import jakarta.validation.Valid;
 
 public interface OrderService {
-    Long createOrder(@Valid OrderSaveReqVO createReqVO);
-
-    void payOrder(Long id, Long userId);
+    Long createOrder(@Valid OrderSaveReqVO createReqVO, Long userId);
 
     void updateOrderStatus(Long id, String status);
 
     OrderRespDTO getOrder(Long id);
 
     PageResult<OrderRespDTO> getOrderPage(OrderPageReqVO pageReqVO);
+
+    OrderRespDTO getUserOrder(Long id, Long userId);
+
+    PageResult<OrderRespDTO> getUserOrderPage(OrderPageReqVO pageReqVO, Long userId);
+
+    PageResult<OrderRespDTO> getAdminOrderPage(OrderPageReqVO pageReqVO, Long authUserId);
 }

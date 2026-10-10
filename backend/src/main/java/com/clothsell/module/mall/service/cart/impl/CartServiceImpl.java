@@ -1,4 +1,4 @@
-package com.clothsell.module.mall.service.cart;
+package com.clothsell.module.mall.service.cart.impl;
 
 import com.clothsell.framework.common.exception.ServiceException;
 import com.clothsell.module.mall.dal.dataobject.cart.CartDO;
@@ -9,9 +9,10 @@ import com.clothsell.module.mall.dal.dataobject.product.SkuDO;
 import com.clothsell.module.mall.dal.mysql.cart.CartMapper;
 import com.clothsell.module.mall.dal.mysql.product.ProductMapper;
 import com.clothsell.module.mall.dal.mysql.product.SkuMapper;
-import com.clothsell.module.mall.service.money.MoneyClient;
-import com.clothsell.module.mall.service.money.MoneyClient.CartAmounts;
-import com.clothsell.module.mall.service.product.ProductServiceImpl;
+import com.clothsell.module.mall.integration.money.MoneyClient;
+import com.clothsell.module.mall.integration.money.MoneyClient.CartAmounts;
+import com.clothsell.module.mall.service.cart.CartService;
+import com.clothsell.module.mall.util.ProductImageUtils;
 import com.clothsell.module.mall.vo.cart.CartSaveReqVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.MONEY_UNAVAILABLE;
+import static com.clothsell.module.mall.enums.ErrorCodeConstants.LOGIN_BAD;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.PRODUCT_NOT_EXISTS;
 import static com.clothsell.module.mall.enums.ErrorCodeConstants.SKU_NOT_EXISTS;
@@ -46,7 +48,9 @@ public class CartServiceImpl implements CartService {
     private MoneyClient moneyClient;
 
     @Override
-    public Long createCart(CartSaveReqVO createReqVO) {
+    public Long createCart(CartSaveReqVO createReqVO, Long userId) {
+        requireUser(userId);
+        createReqVO.setUserId(userId);
         SkuDO sku = requireShelfSku(createReqVO.getSkuId());
         CartDO existing = cartMapper.selectByUserAndSku(createReqVO.getUserId(), sku.getId());
         int next = createReqVO.getQty() + (existing == null ? 0 : existing.getQty());
@@ -69,7 +73,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void updateCart(CartSaveReqVO updateReqVO) {
+    public void updateCart(CartSaveReqVO updateReqVO, Long userId) {
+        requireUser(userId);
+        updateReqVO.setUserId(userId);
         CartDO current = cartMapper.selectById(updateReqVO.getId());
         if (current == null || !current.getUserId().equals(updateReqVO.getUserId())) {
             throw exception(ORDER_NOT_EXISTS);
@@ -95,6 +101,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartListDTO getCartList(Long userId) {
+        requireUser(userId);
         List<CartRespDTO> list = new ArrayList<>();
         for (CartDO item : cartMapper.selectByUserId(userId)) {
             SkuDO sku = skuMapper.selectById(item.getSkuId());
@@ -158,8 +165,8 @@ public class CartServiceImpl implements CartService {
     }
 
     private String colorCover(SkuDO sku, ProductDO product) {
-        String cover = ProductServiceImpl.safeCover(sku.getCoverUrl());
-        return cover != null ? cover : ProductServiceImpl.safeCover(product.getCoverUrl());
+        String cover = ProductImageUtils.safeCover(sku.getCoverUrl());
+        return cover != null ? cover : ProductImageUtils.safeCover(product.getCoverUrl());
     }
 
     private SkuDO requireShelfSku(Long skuId) {
@@ -172,5 +179,11 @@ public class CartServiceImpl implements CartService {
             throw exception(PRODUCT_NOT_EXISTS);
         }
         return sku;
+    }
+
+    private void requireUser(Long userId) {
+        if (userId == null) {
+            throw exception(LOGIN_BAD);
+        }
     }
 }

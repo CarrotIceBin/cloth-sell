@@ -14,17 +14,13 @@ import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.framework.common.pojo.CommonResult.success;
 import static com.clothsell.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static com.clothsell.module.mall.enums.ErrorCodeConstants.LOGIN_BAD;
-import static com.clothsell.module.mall.enums.ErrorCodeConstants.ORDER_NOT_EXISTS;
 
 @RestController("clientOrderController")
 @RequestMapping("/mall/client/order")
@@ -35,37 +31,21 @@ public class OrderController {
     @PostMapping("/create")
     @PreAuthorize("@ss.hasPermission('mall:client-order:create')")
     public CommonResult<Long> createOrder(@Valid @RequestBody OrderSaveReqVO createReqVO) {
-        Long userId = getLoginUserId();
-        if (userId == null) {
-            throw exception(LOGIN_BAD);
-        }
-        createReqVO.setUserId(userId);
-        return success(orderService.createOrder(createReqVO));
+        return success(orderService.createOrder(createReqVO, getLoginUserId()));
     }
 
     @GetMapping("/page")
     @PreAuthorize("@ss.hasPermission('mall:client-order:query')")
     public CommonResult<PageResult<OrderRespVO>> getOrderPage(@Valid OrderPageReqVO pageReqVO) {
-        pageReqVO.setUserId(getLoginUserId());
-        PageResult<OrderRespDTO> page = orderService.getOrderPage(pageReqVO);
+        PageResult<OrderRespDTO> page = orderService.getUserOrderPage(pageReqVO, getLoginUserId());
         return success(new PageResult<>(page.getList().stream().map(this::toVo).toList(), page.getTotal()));
     }
 
     @GetMapping("/get")
     @PreAuthorize("@ss.hasPermission('mall:client-order:query')")
     public CommonResult<OrderRespVO> getOrder(@RequestParam("id") Long id) {
-        OrderRespDTO dto = orderService.getOrder(id);
-        if (!dto.getUserId().equals(getLoginUserId())) {
-            throw exception(ORDER_NOT_EXISTS);
-        }
+        OrderRespDTO dto = orderService.getUserOrder(id, getLoginUserId());
         return success(toVo(dto));
-    }
-
-    @PutMapping("/pay")
-    @PreAuthorize("@ss.hasPermission('mall:client-order:update')")
-    public CommonResult<Boolean> pay(@RequestParam("id") Long id) {
-        orderService.payOrder(id, getLoginUserId());
-        return success(true);
     }
 
     private OrderRespVO toVo(OrderRespDTO dto) {

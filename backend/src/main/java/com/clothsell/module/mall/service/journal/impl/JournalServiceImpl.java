@@ -1,10 +1,11 @@
-package com.clothsell.module.mall.service.journal;
+package com.clothsell.module.mall.service.journal.impl;
 
 import com.clothsell.framework.common.pojo.PageParam;
 import com.clothsell.framework.common.pojo.PageResult;
 import com.clothsell.module.mall.dal.dataobject.journal.JournalDO;
 import com.clothsell.module.mall.dal.mysql.journal.JournalMapper;
-import com.clothsell.module.mall.service.product.ProductServiceImpl;
+import com.clothsell.module.mall.service.journal.JournalService;
+import com.clothsell.module.mall.util.ProductImageUtils;
 import com.clothsell.module.mall.vo.journal.JournalPageReqVO;
 import com.clothsell.module.mall.vo.journal.JournalSaveReqVO;
 import jakarta.annotation.Resource;
@@ -69,6 +70,21 @@ public class JournalServiceImpl implements JournalService {
         return journalMapper.selectPage(pageReqVO);
     }
 
+    @Override
+    public JournalDO getPublishedJournal(Long id) {
+        JournalDO row = getJournal(id);
+        if (!Boolean.TRUE.equals(row.getPublished())) {
+            throw exception(JOURNAL_NOT_EXISTS);
+        }
+        return row;
+    }
+
+    @Override
+    public PageResult<JournalDO> getPublishedJournalPage(JournalPageReqVO pageReqVO) {
+        pageReqVO.setPublished(true);
+        return getJournalPage(pageReqVO);
+    }
+
     private void validateJournalExists(Long id) {
         if (id == null || journalMapper.selectById(id) == null) {
             throw exception(JOURNAL_NOT_EXISTS);
@@ -80,7 +96,7 @@ public class JournalServiceImpl implements JournalService {
         if (url == null) {
             return null;
         }
-        if (ProductServiceImpl.safeCover(url) == null) {
+        if (ProductImageUtils.safeCover(url) == null) {
             throw exception(COVER_BAD);
         }
         return url;

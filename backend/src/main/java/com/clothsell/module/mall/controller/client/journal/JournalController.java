@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.clothsell.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.clothsell.framework.common.pojo.CommonResult.success;
-import static com.clothsell.module.mall.enums.ErrorCodeConstants.JOURNAL_NOT_EXISTS;
 
 @Tag(name = "顾客端 - 期刊")
 @RestController("clientJournalController")
@@ -30,18 +28,14 @@ public class JournalController {
     @GetMapping("/page")
     @PreAuthorize("@ss.hasPermission('mall:client-journal:query')")
     public CommonResult<PageResult<JournalRespVO>> getJournalPage(@Valid JournalPageReqVO pageReqVO) {
-        pageReqVO.setPublished(true);
-        PageResult<JournalDO> page = journalService.getJournalPage(pageReqVO);
+        PageResult<JournalDO> page = journalService.getPublishedJournalPage(pageReqVO);
         return success(new PageResult<>(page.getList().stream().map(this::toVo).toList(), page.getTotal()));
     }
 
     @GetMapping("/get")
     @PreAuthorize("@ss.hasPermission('mall:client-journal:query')")
     public CommonResult<JournalRespVO> getJournal(@RequestParam("id") Long id) {
-        JournalDO row = journalService.getJournal(id);
-        if (!Boolean.TRUE.equals(row.getPublished())) {
-            throw exception(JOURNAL_NOT_EXISTS);
-        }
+        JournalDO row = journalService.getPublishedJournal(id);
         return success(toVo(row));
     }
 

@@ -3,13 +3,13 @@
     <SiteHeader />
     <main class="wrap">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <span>期刊</span>
+        <span>{{ $t('期刊') }}</span>
       </nav>
       <header class="head">
-        <h1 class="sec-title">期刊</h1>
-        <p class="sec-sub">搭配灵感与面料知识</p>
+        <h1 class="sec-title">{{ $t('期刊') }}</h1>
+        <p class="sec-sub">{{ $t('搭配灵感与面料知识') }}</p>
       </header>
 
       <div class="tags">
@@ -18,20 +18,20 @@
           :key="tag.label"
           :class="{ on: active === tag.value }"
           @click="pick(tag.value)"
-        >{{ tag.label }}</button>
+        >{{ $t(tag.label) }}</button>
       </div>
 
-      <p v-if="!list.length" class="empty">还没有文章</p>
+      <p v-if="!list.length" class="empty">{{ $t('还没有文章') }}</p>
       <div class="grid">
         <router-link v-for="(post, i) in list" :key="post.id" class="post" :to="'/journal/' + post.id">
           <div class="cover" :style="articleStyle(post.coverUrl, i)">
-            <span class="tag">{{ post.tag }}</span>
+            <span class="tag">{{ $t(post.tag) }}</span>
           </div>
           <div class="body">
             <p class="date">{{ date(post.createTime) }}</p>
             <h2>{{ post.title }}</h2>
             <p class="text">{{ post.summary }}</p>
-            <span class="read">阅读更多 →</span>
+            <span class="read">{{ $t('阅读更多 →') }}</span>
           </div>
         </router-link>
       </div>

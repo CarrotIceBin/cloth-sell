@@ -3,41 +3,41 @@
     <SiteHeader />
     <main class="wrap">
       <nav class="crumb bar">
-        <router-link to="/">首页</router-link>
+        <router-link to="/">{{ $t('首页') }}</router-link>
         <span>/</span>
-        <router-link to="/cart">购物车</router-link>
+        <router-link to="/cart">{{ $t('购物车') }}</router-link>
         <span>/</span>
-        <span>结算</span>
+        <span>{{ $t('结算') }}</span>
       </nav>
-      <h1 class="sec-title title">填写收货信息</h1>
+      <h1 class="sec-title title">{{ $t('填写收货信息') }}</h1>
 
       <div class="layout">
         <section class="form">
           <el-form :model="form" label-position="top" @submit.prevent="submit">
-            <el-form-item label="收货人">
-              <el-input v-model="form.receiverName" placeholder="请填写收货人姓名" />
+            <el-form-item :label="$t('收货人')">
+              <el-input v-model="form.receiverName" :placeholder="$t('请填写收货人姓名')" />
             </el-form-item>
-            <el-form-item label="手机">
-              <el-input v-model="form.receiverPhone" maxlength="11" placeholder="11 位手机号" />
+            <el-form-item :label="$t('手机')">
+              <el-input v-model="form.receiverPhone" maxlength="11" :placeholder="$t('11 位手机号')" />
             </el-form-item>
-            <el-form-item label="省市区">
+            <el-form-item :label="$t('省市区')">
               <el-cascader
                 v-model="area"
                 :options="pcaTextArr"
                 clearable
-                placeholder="请选择省市区"
+                :placeholder="$t('请选择省市区')"
                 style="width: 100%"
                 @change="onArea"
               />
             </el-form-item>
-            <el-form-item label="详细地址">
-              <el-input v-model="form.address" type="textarea" :rows="3" placeholder="街道、门牌号等" />
+            <el-form-item :label="$t('详细地址')">
+              <el-input v-model="form.address" type="textarea" :rows="3" :placeholder="$t('街道、门牌号等')" />
             </el-form-item>
           </el-form>
         </section>
 
         <aside class="panel">
-          <h2>订单摘要</h2>
+          <h2>{{ $t('订单摘要') }}</h2>
           <ul class="lines">
             <li v-for="item in items" :key="item.id">
               <span class="thumb" :style="coverStyle(item.coverUrl)" />
@@ -49,13 +49,13 @@
             </li>
           </ul>
           <dl>
-            <div><dt>运费</dt><dd>{{ Number(freight) > 0 ? '¥' + money(freight) : '免运费' }}</dd></div>
-            <div class="total"><dt>应付</dt><dd>¥{{ payable }}</dd></div>
+            <div><dt>{{ $t('运费') }}</dt><dd>{{ Number(freight) > 0 ? '¥' + money(freight) : $t('免运费') }}</dd></div>
+            <div class="total"><dt>{{ $t('应付') }}</dt><dd>¥{{ payable }}</dd></div>
           </dl>
           <button class="btn full" :disabled="submitting" @click="submit">
-            {{ submitting ? '提交中…' : '提交订单' }}
+            {{ submitting ? $t('提交中…') : $t('提交订单') }}
           </button>
-          <p class="hint">提交后可在「我的订单」里确认付款。</p>
+          <p class="hint">{{ $t('提交后可在「我的订单」查看状态，商家核实收款后会确认付款。') }}</p>
         </aside>
       </div>
     </main>
@@ -71,8 +71,10 @@ import { coverStyle } from '@/utils/cover'
 import { pcaTextArr } from 'element-china-area-data'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from '@/hooks/web'
 
 const router = useRouter()
+const { t } = useI18n()
 const area = ref<string[]>([])
 const items = ref<CartItem[]>([])
 const payable = ref('0.00')
@@ -89,15 +91,15 @@ function onArea(value?: string[]) {
 
 const submit = async () => {
   if (!form.receiverName.trim() || !form.receiverPhone.trim()) {
-    ElMessage.error('请填写收货人和手机')
+    ElMessage.error(t('请填写收货人和手机'))
     return
   }
   if (!form.province || !form.city || !form.district) {
-    ElMessage.error('请选择省市区')
+    ElMessage.error(t('请选择省市区'))
     return
   }
   if (!form.address.trim()) {
-    ElMessage.error('请填写详细地址')
+    ElMessage.error(t('请填写详细地址'))
     return
   }
   submitting.value = true

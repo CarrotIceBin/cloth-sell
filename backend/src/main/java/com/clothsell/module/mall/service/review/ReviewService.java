@@ -16,5 +16,7 @@ public interface ReviewService {
 
     PageResult<ReviewDO> getReviewPage(@Valid ReviewPageReqVO pageReqVO);
 
+    PageResult<ReviewDO> getPublishedReviewPage(@Valid ReviewPageReqVO pageReqVO);
+
     ReviewSummaryRespVO getSummary(Long productId);
 }

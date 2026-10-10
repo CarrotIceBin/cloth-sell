@@ -1,37 +1,37 @@
 <template>
   <Dialog :title="dialogTitle" v-model="dialogVisible">
     <el-form ref="formRef" :model="formData" :rules="formRules" label-width="90px" v-loading="formLoading">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="formData.name" placeholder="请输入名称" />
+      <el-form-item :label="$t('名称')" prop="name">
+        <el-input v-model="formData.name" :placeholder="$t('请输入名称')" />
       </el-form-item>
-      <el-form-item label="封面">
+      <el-form-item :label="$t('封面')">
         <el-upload :show-file-list="false" :http-request="uploadCover">
-          <el-button>上传图片</el-button>
+          <el-button>{{ $t('上传图片') }}</el-button>
         </el-upload>
         <el-image v-if="formData.coverUrl" :src="formData.coverUrl" style="width: 80px; height: 80px; margin-left: 12px" fit="cover" />
       </el-form-item>
-      <el-form-item label="上架" prop="onShelf">
+      <el-form-item :label="$t('上架')" prop="onShelf">
         <el-switch v-model="formData.onShelf" />
       </el-form-item>
-      <el-form-item label="规格">
+      <el-form-item :label="$t('规格')">
         <div v-for="(sku, index) in formData.skus" :key="index" class="sku-row">
-          <el-input v-model="sku.color" placeholder="颜色" />
-          <el-input v-model="sku.size" placeholder="尺码" />
-          <el-input v-model="sku.price" placeholder="价格" />
-          <el-input v-model="sku.stock" placeholder="库存" />
+          <el-input v-model="sku.color" :placeholder="$t('颜色')" />
+          <el-input v-model="sku.size" :placeholder="$t('尺码')" />
+          <el-input v-model="sku.price" :placeholder="$t('价格')" />
+          <el-input v-model="sku.stock" :placeholder="$t('库存')" />
           <el-upload :show-file-list="false" :http-request="(option: any) => uploadSkuCover(option, sku)">
-            <el-button size="small">图片</el-button>
+            <el-button size="small">{{ $t('图片') }}</el-button>
           </el-upload>
           <el-image v-if="sku.coverUrl" class="sku-thumb" :src="sku.coverUrl" fit="cover" />
-          <el-button text @click="formData.skus.splice(index, 1)">删除</el-button>
+          <el-button text @click="formData.skus.splice(index, 1)">{{ $t('删除') }}</el-button>
         </div>
-        <el-button @click="formData.skus.push({ color: '', size: '', price: undefined, stock: undefined })">加规格</el-button>
-        <p class="sku-tip">同一个颜色共用一张图，上传后会自动填到该颜色的其他尺码。价格和库存直接填数字，不用带 ¥。</p>
+        <el-button @click="formData.skus.push({ color: '', size: '', price: undefined, stock: undefined })">{{ $t('加规格') }}</el-button>
+        <p class="sku-tip">{{ $t('同一个颜色共用一张图，上传后会自动填到该颜色的其他尺码。价格和库存直接填数字，不用带 ¥。') }}</p>
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="submitForm" type="primary" :disabled="formLoading">确 定</el-button>
-      <el-button @click="dialogVisible = false">取 消</el-button>
+      <el-button @click="submitForm" type="primary" :disabled="formLoading">{{ $t('确 定') }}</el-button>
+      <el-button @click="dialogVisible = false">{{ $t('取 消') }}</el-button>
     </template>
   </Dialog>
 </template>
@@ -49,10 +49,10 @@ const formLoading = ref(false)
 const formType = ref('')
 const empty = (): Product => ({ id: undefined, name: undefined, coverUrl: undefined, onShelf: true, skus: [{ color: '', size: '' }] })
 const formData = ref<Product>(empty())
-const formRules = reactive({
-  name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-  onShelf: [{ required: true, message: '上架状态不能为空', trigger: 'change' }]
-})
+const formRules = computed(() => ({
+  name: [{ required: true, message: t('名称不能为空'), trigger: 'blur' }],
+  onShelf: [{ required: true, message: t('上架状态不能为空'), trigger: 'change' }]
+}))
 const formRef = ref()
 
 const open = async (type: string, row?: Product) => {
@@ -79,7 +79,7 @@ const uploadCover = async (option: any) => {
     formData.value.coverUrl = await ProductApi.uploadCover(option.file)
   } catch (e: any) {
     formData.value.coverUrl = undefined
-    message.error(e.message || '上传失败')
+    message.error(e.message || t('上传失败'))
   }
 }
 
@@ -96,7 +96,7 @@ const uploadSkuCover = async (option: any, sku: Sku) => {
       if ((item.color || '').trim() === color) item.coverUrl = url
     })
   } catch (e: any) {
-    message.error(e.message || '上传失败')
+    message.error(e.message || t('上传失败'))
   }
 }
 
@@ -124,7 +124,7 @@ const submitForm = async () => {
   }))
   const badRow = skus.findIndex((sku) => sku.price === undefined || sku.stock === undefined)
   if (badRow >= 0) {
-    message.error(`第 ${badRow + 1} 行的价格和库存请填数字，不要带 ¥ 或单位`)
+    message.error(t('第 {row} 行的价格和库存请填数字，不要带 ¥ 或单位', { row: badRow + 1 }))
     return
   }
   const data = { ...formData.value, skus } as Product

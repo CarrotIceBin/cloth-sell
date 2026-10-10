@@ -1,4 +1,4 @@
-package com.clothsell.module.mall.service.product;
+package com.clothsell.module.mall.service.product.impl;
 
 import com.clothsell.framework.common.pojo.PageParam;
 import com.clothsell.framework.common.pojo.PageResult;
@@ -14,7 +14,9 @@ import com.clothsell.framework.mybatis.core.query.LambdaQueryWrapperX;
 import com.clothsell.module.mall.vo.product.ProductPageReqVO;
 import com.clothsell.module.mall.vo.product.ProductSaveReqVO;
 import com.clothsell.framework.redis.core.MallCache;
-import com.clothsell.module.mall.service.money.MoneyClient;
+import com.clothsell.module.mall.integration.money.MoneyClient;
+import com.clothsell.module.mall.service.product.ProductService;
+import com.clothsell.module.mall.util.ProductImageUtils;
 import com.clothsell.module.mall.vo.product.SkuSaveReqVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
@@ -132,6 +134,21 @@ public class ProductServiceImpl implements ProductService {
         return result;
     }
 
+    @Override
+    public ProductRespDTO getPublishedProduct(Long id) {
+        ProductRespDTO product = getProduct(id);
+        if (!Boolean.TRUE.equals(product.getOnShelf())) {
+            throw exception(PRODUCT_NOT_EXISTS);
+        }
+        return product;
+    }
+
+    @Override
+    public PageResult<ProductRespDTO> getPublishedProductPage(ProductPageReqVO pageReqVO) {
+        pageReqVO.setOnShelf(true);
+        return getProductPage(pageReqVO);
+    }
+
     private void saveSkus(Long productId, List<SkuDO> existing, List<SkuSaveReqVO> rows) {
         Map<String, SkuDO> byKey = new LinkedHashMap<>();
         for (SkuDO sku : existing) {
@@ -187,7 +204,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductRespDTO> list = new ArrayList<>();
         for (ProductDO row : rows) {
             ProductRespDTO dto = BeanUtils.toBean(row, ProductRespDTO.class);
-            dto.setCoverUrl(safeCover(row.getCoverUrl()));
+            dto.setCoverUrl(ProductImageUtils.safeCover(row.getCoverUrl()));
             dto.setCategory(CATEGORY);
             List<SkuDO> items = skus.getOrDefault(row.getId(), List.of());
             dto.setSkus(items);
@@ -231,7 +248,7 @@ public class ProductServiceImpl implements ProductService {
         if (url == null) {
             return null;
         }
-        if (safeCover(url) == null) {
+        if (ProductImageUtils.safeCover(url) == null) {
             throw exception(COVER_BAD);
         }
         return url;
@@ -241,16 +258,4 @@ public class ProductServiceImpl implements ProductService {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    public static String safeCover(String url) {
-        if (url == null || url.length() > 500 || url.chars().anyMatch(ch -> ch <= ' ' || "\"'()<>\\".indexOf(ch) >= 0)) {
-            return null;
-        }
-        if (url.startsWith("/files/") && url.matches("/files/[A-Za-z0-9._-]+")) {
-            return url;
-        }
-        if (url.startsWith("https://")) {
-            return url;
-        }
-        return null;
-    }
 }

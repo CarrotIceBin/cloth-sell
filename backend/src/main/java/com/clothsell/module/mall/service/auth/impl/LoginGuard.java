@@ -1,4 +1,4 @@
-package com.clothsell.module.mall.service.auth;
+package com.clothsell.module.mall.service.auth.impl;
 
 import org.springframework.stereotype.Component;
 
