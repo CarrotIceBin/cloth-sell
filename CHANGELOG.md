@@ -1,5 +1,91 @@
 # 更新日志
 
+## 20261010
+
+### 顾客端与管理端
+
+- 新增人工客服：买家在 `/help` 切换人工模式，管理员在 `/admin/support` 回复；消息入库后通过 WebSocket 推送，支持离线留言、历史分页、重试去重、心跳、断线重连和消息补拉。
+  文件：
+  - `frontend/src/components/SupportChatPanel.vue`
+  - `frontend/src/hooks/useSupportSocket.ts`
+  - `frontend/src/api/mall/support/index.ts`
+  - `frontend/src/views/mall/support/index.vue`
+  - `backend/src/main/java/com/clothsell/module/mall/websocket/SupportSocketConfig.java`
+  - `backend/src/main/java/com/clothsell/module/mall/websocket/SupportSocketHandler.java`
+  - `backend/src/main/java/com/clothsell/module/mall/websocket/SupportTickets.java`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/client/support/SupportSocketController.java`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/client/support/LiveSupportController.java`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/admin/support/SupportController.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/support/LiveSupportService.java`
+- 新增聊天中心：买家 `/chat`、管理员 `/admin/chat`，支持一对一私聊、一对多群发、多对一独立接待和多对多群聊；按成员身份限制历史查询、发送和实时推送。
+  文件：
+  - `frontend/src/views/mall/chat/index.vue`
+  - `frontend/src/api/mall/chat/index.ts`
+  - `frontend/src/router.ts`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/chat/ChatController.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/chat/ChatService.java`
+  - `backend/src/main/java/com/clothsell/module/mall/dal/dataobject/chat/ChatRoomDO.java`
+  - `backend/src/main/java/com/clothsell/module/mall/dal/dataobject/chat/ChatMemberDO.java`
+  - `backend/src/main/java/com/clothsell/module/mall/dal/dataobject/chat/ChatMessageDO.java`
+- 帮助中心接入 OpenAI 兼容模型，未配置密钥时使用本地 FAQ；新增模型地址、密钥和名称配置。
+  文件：
+  - `frontend/src/views/mall/client/help/index.vue`
+  - `frontend/src/api/mall/client/support/index.ts`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/client/support/SupportChatController.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/support/impl/SupportChatServiceImpl.java`
+  - `backend/src/main/resources/application.yml.example`
+- 全站接入简体中文、繁体中文、英语和日语切换，覆盖商城、登录、帮助中心及后台页面。
+  文件：
+  - `frontend/src/components/LanguageSwitcher.vue`
+  - `frontend/src/i18n/index.ts`
+  - `frontend/src/i18n/locales/zh-CN.ts`
+  - `frontend/src/i18n/locales/zh-TW.ts`
+  - `frontend/src/i18n/locales/en-US.ts`
+  - `frontend/src/i18n/locales/ja-JP.ts`
+  - `frontend/src/main.ts`
+  - `frontend/src/components/SiteHeader.vue`
+  - `frontend/src/views/mall/AdminLayout.vue`
+- 取消顾客自行标记订单已付款的入口，由管理员核实收款后更新订单状态。
+  文件：
+  - `frontend/src/api/mall/client/order/index.ts`
+  - `frontend/src/views/mall/client/order/index.vue`
+  - `backend/src/main/java/com/clothsell/module/mall/controller/client/order/OrderController.java`
+
+### 后端与部署
+
+- 整理服务接口与实现目录，抽出文件上传服务和商品图片工具，将金额服务客户端移入 `integration/money`，同步调整相关控制器调用。
+  文件：
+  - `backend/src/main/java/com/clothsell/module/mall/service/auth/impl/AuthServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/cart/impl/CartServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/order/impl/OrderServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/product/impl/ProductServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/journal/impl/JournalServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/review/impl/ReviewServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/service/file/impl/FileServiceImpl.java`
+  - `backend/src/main/java/com/clothsell/module/mall/util/ProductImageUtils.java`
+  - `backend/src/main/java/com/clothsell/module/mall/integration/money/MoneyClient.java`
+- 新增 WebSocket 依赖、握手路由及开发代理配置，补充客服与聊天中心建表、生产代理和压测说明。当前连接与票据保存在进程内，多实例部署仍需共享票据、消息分发和在线状态。
+  文件：
+  - `backend/pom.xml`
+  - `backend/src/main/java/com/clothsell/framework/security/config/SecurityConfig.java`
+  - `frontend/vite.config.js`
+  - `README.md`
+  - `docs/superpowers/specs/2026-10-08-support-chat-design.md`
+  - `docs/support-chat.md`
+  - `docs/chat.md`
+  - `docs/chat-load-report.md`
+  - `docs/chat-population-load-report.md`
+
+### 验证
+
+- 本次推送前，前端生产构建、3 项 WebSocket 前端测试和 16 项后端服务、握手及集成测试通过；未重跑压力测试。以上条目补记提交 `beec837`、`ff7b5f0` 的改动。
+  文件：
+  - `frontend/tests/support-socket.test.mjs`
+  - `backend/src/test/java/com/clothsell/module/mall/service/support/LiveSupportServiceTest.java`
+  - `backend/src/test/java/com/clothsell/module/mall/websocket/SupportIntegrationTest.java`
+  - `backend/src/test/java/com/clothsell/module/mall/websocket/SupportSocketHandlerTest.java`
+  - `backend/src/test/java/com/clothsell/module/mall/websocket/SupportTicketsTest.java`
+
 ## 20260927
 
 ### 其他
